@@ -1,0 +1,54 @@
+# ECG Models — Configuration
+
+# Available backbones
+backbones:
+  xresnet1d_101:
+    in_channels: 12
+    base_channels: 32
+    dropout: 0.1
+    stem_kernel_size: 15
+    stem_stride: 2
+
+  inception_time:
+    in_channels: 12
+    n_filters: 32
+    bottleneck_channels: 32
+    kernel_sizes: [9, 19, 39]
+    depth: 3
+    dropout: 0.1
+
+  resnet1d_34:
+    in_channels: 12
+    base_channels: 32
+
+  ecg_transformer:
+    in_channels: 12
+    d_model: 256
+    nhead: 8
+    num_layers: 8
+    dim_feedforward: 1024
+    dropout: 0.1
+    kernel_size: 49
+    stride: 24
+
+# Classification head
+classifier:
+  num_classes: 27
+  hidden_dim: 256
+  dropout: 0.2
+
+# Anomaly detector (VAE)
+anomaly_detector:
+  latent_dim: 128
+  encoder_hidden: 256
+  beta: 1.0  # KL weight
+  threshold_percentile: 95.0
+
+# Loss functions
+loss:
+  asymmetric:
+    gamma_neg: 4.0
+    gamma_pos: 0.0
+    clip: 0.05
+  focal:
+    gamma: 2.0

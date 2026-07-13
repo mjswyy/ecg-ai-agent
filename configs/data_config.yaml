@@ -1,0 +1,83 @@
+# ECG AI Agent - Data Pipeline Configuration
+
+# Dataset paths
+dataset:
+  physionet2020:
+    raw_dir: "data/physionet2020/raw"
+    processed_dir: "data/physionet2020/processed"
+    splits_dir: "data/physionet2020/splits"
+    labels_dir: "data/physionet2020/labels"
+
+  # Data sources within PhysioNet 2020
+  sources:
+    - cpsc_2018       # 6,877 records, 500Hz, 10-15s
+    - cpsc_2018_extra # 3,453 records, 500Hz, 10-15s
+    - georgia         # 10,344 records, 500Hz, ~10s
+    - ptb             # 516 records, 1000Hz, 38-115s
+    - ptb-xl          # 21,837 records, 500Hz, ~10s
+    - st_petersburg_incart  # 74 records, 257Hz, ~30min
+
+# Preprocessing parameters
+preprocessing:
+  target_fs: 500          # Target sampling rate (Hz)
+  target_length: 4096     # Target signal length (samples)
+  bandpass_low: 0.5       # Bandpass filter low cutoff (Hz)
+  bandpass_high: 45.0     # Bandpass filter high cutoff (Hz)
+  notch_freq: 50.0        # Notch filter frequency (Hz)
+  filter_order: 4         # Butterworth filter order
+  normalization: "zscore" # Options: zscore, minmax, none
+
+# Augmentation parameters
+augmentation:
+  enabled: true
+  baseline_wander:
+    enabled: true
+    freq_range: [0.1, 0.5]  # Hz
+    amplitude: 0.3          # Relative to signal std
+  gaussian_noise:
+    enabled: true
+    sigma_range: [0.01, 0.05]
+  time_warp:
+    enabled: true
+    scale_range: [0.8, 1.2]
+  amplitude_scale:
+    enabled: true
+    scale_range: [0.8, 1.2]
+  lead_dropout:
+    enabled: true
+    max_drop: 2             # Max leads to zero out
+  segment_shuffle:
+    enabled: false          # Only for contrastive learning
+
+# Data splitting
+splitting:
+  train_ratio: 0.70
+  val_ratio: 0.15
+  test_ratio: 0.15
+  random_seed: 42
+  stratify_by: ["source", "label"]
+  split_method: "multi_label_stratified"  # Multi-label stratified split
+
+# Label configuration
+labels:
+  num_classes: 27
+  snomed_ct_mapping_file: "data/physionet2020/labels/snomed_to_class.json"
+  # Key SNOMED CT codes (from data exploration)
+  snomed_ct_codes:
+    426783006: "Sinus rhythm"
+    164889003: "Atrial fibrillation"
+    164884008: "Ventricular ectopic beats"
+    164909002: "Left bundle branch block"
+    59118001: "Right bundle branch block"
+    429622005: "Atrial premature complexes"
+    270492004: "First degree AV block"
+    164931005: "ST-segment depression"
+    164934002: "T-wave inversion"
+    284470004: "Premature atrial contraction"
+
+# DataLoader configuration
+dataloader:
+  batch_size: 128
+  num_workers: 8
+  pin_memory: true
+  prefetch_factor: 2

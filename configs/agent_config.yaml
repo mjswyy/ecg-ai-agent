@@ -1,0 +1,34 @@
+# ECG AI Agent — Configuration
+
+llm:
+  backend: "deepseek"        # deepseek | openai | vllm
+  model: "deepseek-v4-pro"   # deepseek-v4-pro | gpt-4o-mini | Qwen/Qwen2-7B
+  temperature: 0.3
+  max_tokens: 2048
+  # api_key: "${DEEPSEEK_API_KEY}"  # Set via env var
+
+agent:
+  max_steps: 10
+  verbose: false
+
+tools:
+  ecg:
+    r_peak_method: "pan_tompkins"
+    lead_for_analysis: 1       # Lead II
+  classifier:
+    threshold: 0.3             # Minimum probability for positive diagnosis
+    top_k: 5                   # Top-N predictions to report
+  anomaly:
+    threshold_percentile: 95.0
+
+reflection:
+  enable_llm_verify: true      # Use LLM to verify critical findings
+  hr_plausible_range: [20, 300]
+  qt_plausible_range: [200, 600]
+  sdnn_plausible_max: 300
+  hr_cross_tool_tolerance: 20  # bpm difference threshold
+
+pipeline:
+  preprocess: true
+  target_fs: 500
+  target_length: 4096

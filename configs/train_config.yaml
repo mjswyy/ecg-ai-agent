@@ -1,0 +1,42 @@
+# ECG Models — Training Configuration
+
+# Hardware
+device: "cuda"
+mixed_precision: true
+gradient_checkpointing: false
+
+# Data
+data_dir: "data/physionet2020/processed"
+
+# Contrastive pretraining (SimCLR)
+contrastive:
+  batch_size: 256
+  epochs: 100
+  temperature: 0.07
+  lr: 0.0001
+  weight_decay: 0.0001
+  warmup_epochs: 5
+
+# Multi-label fine-tuning
+multilabel:
+  batch_size: 128
+  epochs: 50
+  lr: 0.0001
+  weight_decay: 0.0001
+  warmup_epochs: 5
+  early_stopping_patience: 10
+  log_interval: 50
+
+# Optimizer
+optimizer:
+  name: "adamw"
+  betas: [0.9, 0.999]
+  eps: 1.0e-8
+
+# Loss (options: asymmetric, focal)
+loss: "asymmetric"
+
+# Model checkpointing
+checkpoint:
+  save_dir: "outputs"
+  save_best: true
