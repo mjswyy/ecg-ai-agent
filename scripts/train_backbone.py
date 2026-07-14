@@ -34,6 +34,7 @@ from src.ecg_models.classifiers.arrhythmia_classifier import (
     ArrhythmiaClassifier, AsymmetricLoss,
 )
 from src.ecg_models.trainer import ECGTrainer
+from src.utils.device_utils import detect_device
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -50,12 +51,12 @@ def main():
     parser = argparse.ArgumentParser(description="Train ECG Backbone")
     parser.add_argument("--backbone", default="inception_time",
                         choices=list(BACKBONES.keys()))
-    parser.add_argument("--data-dir", default="data/physionet2020/processed")
+    parser.add_argument("--data-dir", default="/cache/data")
     parser.add_argument("--batch-size", type=int, default=128)
     parser.add_argument("--epochs", type=int, default=50)
     parser.add_argument("--lr", type=float, default=1e-4)
-    parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
-    parser.add_argument("--output-dir", default="outputs")
+    parser.add_argument("--device", default=detect_device())
+    parser.add_argument("--output-dir", default="/cache/output")
     parser.add_argument("--pretrain-only", action="store_true")
     parser.add_argument("--pretrain-epochs", type=int, default=100)
     parser.add_argument("--num-workers", type=int, default=4)
@@ -78,9 +79,9 @@ def main():
     augmentor = ECGAugmentor(random_seed=42)
 
     if args.quick_test:
-        logger.info("Quick test mode: 100 samples for overfitting check")
-        # 不覆盖用户指定的epochs（默认用已有的值）
-        args.pretrain_epochs = min(args.pretrain_epochs, 5)
+        logger.info("Quick test mode: small epochs for smoke test")
+        args.pretrain_epochs = min(args.pretrain_epochs, 3)
+        args.epochs = min(args.epochs, 2)
 
     # === Step 1: Contrastive Pretraining (optional, opt-in) ===
     if args.pretrain_only:

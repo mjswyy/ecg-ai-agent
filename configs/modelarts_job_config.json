@@ -1,0 +1,63 @@
+{
+  "_comment": "ModelArts训练作业配置 — ECG Backbone Training on Ascend NPU 910B",
+  "_setup_steps": [
+    "1. 将所有 'your-bucket' 替换为你的 OBS 桶名",
+    "2. 确保 OBS 桶中已上传数据和代码（参考 docs/华为云训练指南.md）",
+    "3. 在 ModelArts 控制台或通过 ma-cli 提交训练作业"
+  ],
+
+  "_region": "cn-southwest-2 (西南-贵阳一)",
+  "_obs_endpoint": "obs.cn-southwest-2.myhuaweicloud.com",
+
+  "job_name": "ecg-backbone-{backbone}",
+  "description": "ECG AI Agent — 骨干网络多标签分类训练",
+
+  "algorithm": {
+    "code_dir": "obs://your-bucket/ecg-ai-agent/code/",
+    "boot_file": "scripts/train_modelarts.py",
+    "framework": "PyTorch",
+    "framework_version": "2.1.0",
+    "engine": "Ascend",
+    "engine_version": "CANN 8.0.0"
+  },
+
+  "inputs": {
+    "data": "obs://your-bucket/ecg-ai-agent/data/physionet2020/processed/"
+  },
+
+  "outputs": {
+    "checkpoints": "obs://your-bucket/ecg-ai-agent/outputs/{backbone}/",
+    "logs": "obs://your-bucket/ecg-ai-agent/logs/{backbone}/"
+  },
+
+  "resources": {
+    "flavor": "ascend.8vcpu.64g.npu910b",
+    "node_count": 1,
+    "npu_per_node": 1
+  },
+
+  "parameters": {
+    "BACKBONE": "inception_time",
+    "EPOCHS": "50",
+    "BATCH_SIZE": "128",
+    "LR": "1e-4"
+  },
+
+  "training_configs": {
+    "inception_time": {
+      "BATCH_SIZE": "256",
+      "EPOCHS": "50",
+      "estimated_time": "~2h"
+    },
+    "xresnet1d_101": {
+      "BATCH_SIZE": "128",
+      "EPOCHS": "50",
+      "estimated_time": "~6h"
+    },
+    "ecg_transformer": {
+      "BATCH_SIZE": "64",
+      "EPOCHS": "50",
+      "estimated_time": "~8h"
+    }
+  }
+}

@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+"""
+ModelArts Training Entry Point — ECG Backbone Model Training on Ascend NPU.
+
+Usage:
+    Submit via ModelArts console or API as a training job.
+    This script handles:
+        1. OBS data sync → local cache
+        2. Environment validation (NPU/CANN available)
+        3. Training execution (standard train_backbone.py)
+        4. Output sync → OBS
+
+Environment variables (set by ModelArts):
+    MA_INPUT_DIR  — OBS input data mount path (default: /cache/data)
+    MA_OUTPUT_DIR — OBS output path for checkpoints/logs (default: /cache/output)
+    BACKBONE      — Model backbone: inception_time | xresnet1d_101 | ecg_transformer
+    EPOCHS        — Number of training epochs (default: 50)
+    BATCH_SIZE    — Batch size (default: 128)
+    LR            — Learning rate (default: 1e-4)
+"""
+
+import os
+import sys
+import subprocess
+import logging
+from pathlib import Path
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+
+def sync_data_from_obs():
+    """Sync training data from OBS to local cache via moxing.
+
+    ModelArts automatically mounts OBS input to MA_INPUT_DIR.
+    We copy it to /cache/data for faster local I/O during training.
+    """
+    input_dir = os.environ.get("MA_INPUT_DIR", "/cache/data")
+    local_dir = "/cache/data"
+
+    try:
+        import moxing as mox
+        logger.info(f"Syncing data: {input_dir} → {local_dir}")
+        mox.file.copy_parallel(input_dir, local_dir)
+        logger.info("Data sync complete.")
+    except ImportError:
+        logger.warning(
+            "moxing not available. Assuming data is already at /cache/data. "
+            "If running outside ModelArts, ensure data is at --data-dir."
+        )
+    except Exception as e:
+        logger.warning(f"Data sync failed: {e}. Trying to continue with local data.")
+
+
+def validate_environment():
+    """Verify NPU/CANN environment is working correctly."""
+    import torch
+
+    # Check NPU availability
+    try:
+        import torch_npu  # noqa: F401
+        npu_count = torch.npu.device_count()
+        if npu_count > 0:
+            device_name = torch.npu.get_device_name(0)
+            logger.info(f"Ascend NPU: {npu_count} device(s) — [{device_name}]")
+        else:
+            logger.warning("torch_npu loaded but no NPU devices found! "
+                         "Check ASCEND_RT_VISIBLE_DEVICES.")
+    except ImportError:
+        logger.warning("torch_npu not installed. Will fall back to CPU/CUDA.")
+        if torch.cuda.is_available():
+            logger.info(f"CUDA available: {torch.cuda.get_device_name(0)}")
+        else:
+            logger.warning("No accelerator detected (NPU or CUDA). Training on CPU.")
+
+    # Check CANN environment (Ascend only)
+    ascend_home = os.environ.get("ASCEND_HOME", "")
+    if ascend_home:
+        logger.info(f"CANN: ASCEND_HOME={ascend_home}")
+    else:
+        logger.info("ASCEND_HOME not set (non-Ascend environment or CPU mode).")
+
+
+def run_training():
+    """Execute the standard training script with ModelArts-compatible paths."""
+    backbone = os.environ.get("BACKBONE", "inception_time")
+    epochs = os.environ.get("EPOCHS", "50")
+    batch_size = os.environ.get("BATCH_SIZE", "128")
+    lr = os.environ.get("LR", "1e-4")
+    data_dir = os.environ.get("MA_INPUT_DIR", "/cache/data")
+    output_dir = os.environ.get("MA_OUTPUT_DIR", "/cache/output")
+
+    # Ensure output directory exists
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    cmd = [
+        sys.executable, "scripts/train_backbone.py",
+        "--backbone", backbone,
+        "--data-dir", data_dir,
+        "--output-dir", output_dir,
+        "--epochs", epochs,
+        "--batch-size", batch_size,
+        "--lr", lr,
+        "--device", "auto",
+    ]
+
+    logger.info(f"Training: {' '.join(cmd)}")
+    result = subprocess.run(cmd, check=False)
+
+    if result.returncode != 0:
+        logger.error(f"Training failed with exit code {result.returncode}")
+        sys.exit(result.returncode)
+
+    logger.info("Training completed successfully.")
+
+
+def sync_output_to_obs():
+    """Sync training outputs from local cache to OBS via moxing."""
+    output_dir = os.environ.get("MA_OUTPUT_DIR", "/cache/output")
+    local_dir = "/cache/output"
+
+    try:
+        import moxing as mox
+        logger.info(f"Syncing output: {local_dir} → {output_dir}")
+        mox.file.copy_parallel(local_dir, output_dir)
+        logger.info("Output sync complete.")
+    except ImportError:
+        logger.info("moxing not available. Outputs remain at /cache/output.")
+    except Exception as e:
+        logger.error(f"Output sync failed: {e}")
+        logger.info("Outputs remain at /cache/output (may be lost after job ends).")
+
+
+def main():
+    logger.info("=" * 60)
+    logger.info("ECG AI Agent — ModelArts Training Job")
+    logger.info("=" * 60)
+
+    # 1. Validate NPU environment
+    validate_environment()
+
+    # 2. Sync data from OBS
+    sync_data_from_obs()
+
+    # 3. Run training
+    run_training()
+
+    # 4. Sync outputs to OBS
+    sync_output_to_obs()
+
+    logger.info("ModelArts training job finished.")
+
+
+if __name__ == "__main__":
+    main()

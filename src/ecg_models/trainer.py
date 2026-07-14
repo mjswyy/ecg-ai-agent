@@ -11,7 +11,7 @@ ECG 模型训练器 — SimCLR 对比预训练 + 多标签微调。
     - PhysioNet Challenge Score 评估
 
 使用示例:
-    trainer = ECGTrainer(model, device="cuda")
+    trainer = ECGTrainer(model, device="auto")  # 自动检测 NPU/CUDA/CPU
     # 步骤1: 对比预训练
     trainer.train_contrastive(contrastive_loader, epochs=100)
     # 步骤2: 多标签微调
@@ -28,7 +28,7 @@ from typing import Dict, Optional
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.cuda.amp import GradScaler, autocast
+from src.utils.device_utils import GradScaler, autocast, detect_device, is_accelerator
 from torch.utils.data import DataLoader
 
 logger = logging.getLogger(__name__)
@@ -47,25 +47,29 @@ class ECGTrainer:
 
     参数:
         model:      PyTorch 模型（ArrhythmiaClassifier 或 backbone 单独）
-        device:     计算设备 ("cuda" / "cpu")
+        device:     计算设备 ("auto" / "npu" / "cuda" / "cpu")
         output_dir: 检查点和日志输出目录
-        use_amp:    是否启用自动混合精度（仅 CUDA）
+        use_amp:    是否启用自动混合精度（支持 CUDA / Ascend NPU）
         grad_clip:  梯度裁剪最大范数（0 表示禁用）
     """
 
     def __init__(
         self,
         model: nn.Module,
-        device: str = "cuda",
+        device: str = "auto",
         output_dir: str = "outputs",
         use_amp: bool = True,
         grad_clip: float = 1.0,
     ):
-        self.model = model.to(device)
-        self.device = torch.device(device if torch.cuda.is_available() else "cpu")
+        # 自动检测设备: NPU > CUDA > CPU
+        self._device_str = detect_device(device)
+        self.device = torch.device(self._device_str)
+        self.model = model.to(self.device)
 
-        # CPU 上无法使用 AMP
-        self.use_amp = use_amp and self.device.type == "cuda"
+        # 加速器上启用 AMP（NPU 或 CUDA）
+        self.use_amp = use_amp and is_accelerator(self.device)
+        # NPU/CUDA 需要 non_blocking DMA 传输；CPU 上无意义且会警告
+        self._use_non_blocking = is_accelerator(self.device)
 
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -122,8 +126,8 @@ class ECGTrainer:
             num_batches = 0
 
             for batch_idx, (view1, view2) in enumerate(train_loader):
-                view1 = view1.to(self.device)
-                view2 = view2.to(self.device)
+                view1 = view1.to(self.device, non_blocking=self._use_non_blocking)
+                view2 = view2.to(self.device, non_blocking=self._use_non_blocking)
 
                 with autocast(enabled=self.use_amp):
                     # 提取两个视图的特征
@@ -135,6 +139,10 @@ class ECGTrainer:
 
                 # NaN保护: 跳过包含NaN的batch（AMP可能导致梯度下溢）
                 if torch.isnan(loss) or torch.isinf(loss):
+                    logger.warning(
+                        f"对比训练 Epoch {epoch+1}/{epochs} "
+                        f"[{batch_idx}/{len(train_loader)}] loss为NaN/Inf，跳过"
+                    )
                     continue
 
                 # 反向传播
@@ -258,8 +266,8 @@ class ECGTrainer:
             num_batches = 0
 
             for batch_idx, (signals, labels) in enumerate(train_loader):
-                signals = signals.to(self.device)
-                labels = labels.to(self.device)
+                signals = signals.to(self.device, non_blocking=self._use_non_blocking)
+                labels = labels.to(self.device, non_blocking=self._use_non_blocking)
 
                 with autocast(enabled=self.use_amp):
                     logits = self.model(signals)
@@ -350,7 +358,7 @@ class ECGTrainer:
         all_logits, all_labels = [], []
 
         for signals, labels in loader:
-            signals = signals.to(self.device)
+            signals = signals.to(self.device, non_blocking=self._use_non_blocking)
             logits = self.model(signals)
             all_logits.append(logits.cpu().numpy())
             all_labels.append(labels.numpy())
@@ -419,10 +427,14 @@ class ECGTrainer:
         tp = (preds_binary * labels).sum(axis=0)
         fp = ((1 - labels) * preds_binary).sum(axis=0)
         fn = (labels * (1 - preds_binary)).sum(axis=0)
+        n_pos = labels.sum(axis=0)  # 每类正样本数
 
         precision = tp / (tp + fp + 1e-8)
         recall = tp / (tp + fn + 1e-8)
         f_beta = (1 + beta2) * precision * recall / (beta2 * precision + recall + 1e-8)
+
+        # 只对有正样本的类别取平均（与 G_beta 行为一致）
+        f_beta_valid = f_beta[n_pos > 0] if (n_pos > 0).any() else np.array([0.0])
 
         # G-beta: 基于排序的加权指标
         g_beta = 0.0
@@ -447,7 +459,7 @@ class ECGTrainer:
         if n_classes_with_pos > 0:
             g_beta /= n_classes_with_pos
 
-        return float((np.mean(f_beta) + g_beta) / 2.0)
+        return float((np.mean(f_beta_valid) + g_beta) / 2.0)
 
     # ================================================================
     # 工具方法

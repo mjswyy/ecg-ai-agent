@@ -1,12 +1,12 @@
 # ECG Models — Training Configuration
 
 # Hardware
-device: "cuda"
-mixed_precision: true
+device: "auto"  # 自动检测: npu > cuda > cpu / Auto-detect: npu > cuda > cpu
+mixed_precision: true  # 支持 CUDA / Ascend NPU
 gradient_checkpointing: false
 
 # Data
-data_dir: "data/physionet2020/processed"
+data_dir: "/cache/data"  # ModelArts 本地缓存路径 / Local cache path
 
 # Contrastive pretraining (SimCLR)
 contrastive:
@@ -38,5 +38,11 @@ loss: "asymmetric"
 
 # Model checkpointing
 checkpoint:
-  save_dir: "outputs"
+  save_dir: "/cache/output"  # ModelArts 自动同步到 OBS
   save_best: true
+
+# OBS 对象存储配置 / OBS Object Storage Config
+obs:
+  bucket: "obs://your-bucket/ecg-ai-agent/"
+  data_remote: "obs://your-bucket/ecg-ai-agent/data/"
+  output_remote: "obs://your-bucket/ecg-ai-agent/outputs/"

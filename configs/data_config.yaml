@@ -79,5 +79,5 @@ labels:
 dataloader:
   batch_size: 128
   num_workers: 8
-  pin_memory: true
+  pin_memory: true  # NPU/CUDA 都需要页锁定内存加速 DMA 传输
   prefetch_factor: 2
