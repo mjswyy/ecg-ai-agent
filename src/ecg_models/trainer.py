@@ -259,8 +259,8 @@ class ECGTrainer:
             训练历史 {"train_loss": [...], "val_f1": [...], "val_auc": [...]}
         """
         if loss_fn is None:
-            from .classifiers.arrhythmia_classifier import AsymmetricLoss
-            loss_fn = AsymmetricLoss()
+            # 默认使用 BCE（数值更稳定），ASL 可在确认收敛后切换
+            loss_fn = nn.BCEWithLogitsLoss()
 
         optimizer = torch.optim.AdamW(
             self.model.parameters(), lr=lr, weight_decay=weight_decay
