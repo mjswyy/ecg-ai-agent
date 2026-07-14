@@ -85,6 +85,8 @@ class AsymmetricLoss(nn.Module):
             logits:  预测 logits (B, C)
             targets: 二值目标标签 (B, C)
         """
+        # Clamp logits to prevent sigmoid overflow on NPU
+        logits = torch.clamp(logits, min=-50.0, max=50.0)
         p = torch.sigmoid(logits)
 
         # 正类 BCE / Positive BCE
