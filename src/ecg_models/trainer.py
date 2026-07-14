@@ -149,6 +149,19 @@ class ECGTrainer:
                 optimizer.zero_grad()
                 self.scaler.scale(loss).backward()
 
+                # 检查梯度是否含 NaN/Inf（NPU 上 backward 可能产生 NaN）
+                grad_nan = any(
+                    torch.isnan(p.grad).any() or torch.isinf(p.grad).any()
+                    for p in self.model.parameters() if p.grad is not None
+                )
+                if grad_nan:
+                    logger.warning(
+                        f"对比训练 [{batch_idx}/{len(train_loader)}] "
+                        f"NaN/Inf梯度，跳过optimizer step"
+                    )
+                    optimizer.zero_grad()
+                    continue
+
                 if self.grad_clip > 0:
                     self.scaler.unscale_(optimizer)
                     torch.nn.utils.clip_grad_norm_(
@@ -280,6 +293,19 @@ class ECGTrainer:
 
                 optimizer.zero_grad()
                 self.scaler.scale(loss).backward()
+
+                # 检查梯度是否含 NaN/Inf（NPU 上 backward 可能产生 NaN）
+                grad_nan = any(
+                    torch.isnan(p.grad).any() or torch.isinf(p.grad).any()
+                    for p in self.model.parameters() if p.grad is not None
+                )
+                if grad_nan:
+                    logger.warning(
+                        f"Batch {batch_idx}: NaN/Inf梯度，跳过optimizer step。"
+                        f"模型权重未更新。"
+                    )
+                    optimizer.zero_grad()
+                    continue
 
                 if self.grad_clip > 0:
                     self.scaler.unscale_(optimizer)
