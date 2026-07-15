@@ -58,10 +58,16 @@ def find_project_root():
     sys.exit(1)
 
 
-def find_data_dir():
-    """Auto-detect data directory — scan common mount points for train_manifest.json.
+def find_and_fix_data():
+    """Auto-detect data directory and fix manifest paths.
 
-    ModelArts mounts OBS data to /home/ma-user/modelarts/inputs/ or /cache/data/.
+    ModelArts mounts OBS data to unpredictable paths. This function:
+    1. Scans common mount points for train_manifest.json
+    2. Fixes signal_file paths in manifests (OBS upload can add directory prefixes)
+    3. Returns the data directory
+
+    All .npy files are guaranteed to be in the same directory as the manifest,
+    so we strip any directory prefix from signal_file paths.
     """
     search_roots = [
         Path("/home/ma-user/modelarts/inputs"),
@@ -69,17 +75,52 @@ def find_data_dir():
         Path("/cache"),
     ]
 
+    import json
+
     for root in search_roots:
         if not root.exists():
             continue
-        manifest_files = list(root.rglob("train_manifest.json"))
-        if manifest_files:
-            data_dir = str(manifest_files[0].parent)
-            logger.info(f"发现数据目录: {data_dir}")
-            return data_dir
+        manifests = list(root.rglob("train_manifest.json"))
+        if not manifests:
+            continue
 
-    logger.warning("未找到 train_manifest.json，使用默认路径 /cache/data/processed")
-    return "/cache/data/processed"
+        manifest_path = manifests[0]
+        data_dir = str(manifest_path.parent)
+        logger.info(f"发现数据目录: {data_dir}")
+
+        # Fix all manifests: strip directory prefix from signal_file paths
+        with open(manifest_path) as f:
+            last_manifest = json.load(f)
+        for split in ["train", "val", "test"]:
+            mp = Path(data_dir) / f"{split}_manifest.json"
+            if not mp.exists():
+                continue
+            with open(mp) as f:
+                manifest = json.load(f)
+            last_manifest = manifest
+            fixed = 0
+            for rec in manifest["files"]:
+                old = rec["signal_file"]
+                if "/" in old:
+                    rec["signal_file"] = Path(old).name
+                    fixed += 1
+            if fixed > 0:
+                logger.info(f"  修复 {split}_manifest.json: {fixed} 条路径")
+                with open(mp, "w") as f:
+                    json.dump(manifest, f, indent=2)
+
+        # Verify a sample file loads
+        import numpy as np
+        sample_file = last_manifest["files"][0]["signal_file"]
+        sample_path = Path(data_dir) / sample_file
+        if sample_path.exists():
+            np.load(sample_path)
+            logger.info(f"  数据验证通过: {sample_file}")
+            return data_dir
+        logger.warning(f"  文件不存在: {sample_path}")
+
+    logger.error("未找到可用的训练数据")
+    sys.exit(1)
 
 
 def validate_environment():
@@ -180,8 +221,8 @@ def main():
     # 1. Validate NPU environment
     validate_environment()
 
-    # 2. Auto-detect data directory
-    data_dir = find_data_dir()
+    # 2. Auto-detect data directory & fix manifest paths
+    data_dir = find_and_fix_data()
 
     # 3. Run training
     run_training(project_root, data_dir)
