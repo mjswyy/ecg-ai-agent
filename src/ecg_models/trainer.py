@@ -241,6 +241,8 @@ class ECGTrainer:
         weight_decay: float = 1e-4,
         warmup_epochs: int = 5,
         early_stopping_patience: int = 10,
+        label_smoothing: float = 0.0,
+        grad_noise: float = 0.0,
         log_interval: int = 50,
         save_best: bool = True,
     ) -> Dict:
@@ -253,6 +255,8 @@ class ECGTrainer:
             loss_fn:      损失函数（默认 AsymmetricLoss）
             warmup_epochs: LR 预热轮数
             early_stopping_patience: 早停耐心
+            label_smoothing: 标签平滑系数（0=关闭, 推荐0.05-0.1）
+            grad_noise:    梯度噪声标准差（0=关闭, 推荐0.001-0.01, Neelakantan et al. 2015）
             save_best:    是否保存最佳模型
 
         返回:
@@ -281,6 +285,11 @@ class ECGTrainer:
             for batch_idx, (signals, labels) in enumerate(train_loader):
                 signals = signals.to(self.device, non_blocking=self._use_non_blocking)
                 labels = labels.to(self.device, non_blocking=self._use_non_blocking)
+
+                # 标签平滑: 正样本 1→(1-smooth), 负样本 0→smooth
+                # 防止模型过自信（Szegedy et al. 2016, Inception-v3）
+                if label_smoothing > 0:
+                    labels = labels * (1 - label_smoothing) + 0.5 * label_smoothing
 
                 with autocast(enabled=self.use_amp):
                     logits = self.model(signals)
@@ -312,6 +321,15 @@ class ECGTrainer:
                     torch.nn.utils.clip_grad_norm_(
                         self.model.parameters(), self.grad_clip
                     )
+
+                # 梯度噪声: 在 optimizer step 前添加高斯噪声
+                # 隐式正则化，鼓励收敛到平坦极小值（Neelakantan et al. 2015）
+                if grad_noise > 0:
+                    for p in self.model.parameters():
+                        if p.grad is not None:
+                            noise = torch.randn_like(p.grad) * grad_noise
+                            eta = lr / (1 + self.current_epoch) ** 0.55
+                            p.grad.add_(noise * eta / lr)
 
                 self.scaler.step(optimizer)
                 self.scaler.update()

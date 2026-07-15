@@ -60,8 +60,10 @@ class ECGAugmentor:
         amp_scale_range: Tuple[float, float] = (0.8, 1.2),     # 幅度缩放范围
         max_drop_leads: int = 2,               # 最大置零导联数
         shuffle_chunk_seconds: float = 1.0,     # 片段打乱每段秒数
+        apply_prob: float = 1.0,               # 默认每种增强的独立应用概率
         random_seed: Optional[int] = None,     # 随机种子（用于可复现性）
     ):
+        self.apply_prob = apply_prob
         self.wander_freq_range = wander_freq_range
         self.wander_amplitude = wander_amplitude
         self.noise_sigma_range = noise_sigma_range
@@ -87,18 +89,20 @@ class ECGAugmentor:
         self,
         ecg: np.ndarray,
         fs: float = 500.0,
-        apply_prob: float = 1.0,
+        apply_prob: Optional[float] = None,
     ) -> np.ndarray:
         """应用随机数据增强。
 
         参数:
             ecg: ECG 信号，形状 (12, L) 或 (N, 12, L)。
             fs: 采样频率 (Hz)。
-            apply_prob: 每种增强独立应用的概率（0.0-1.0）。
+            apply_prob: 每种增强独立应用的概率（None=使用实例默认值）。
 
         返回:
             增强后的信号，形状与输入相同。
         """
+        if apply_prob is None:
+            apply_prob = self.apply_prob
         # 统一处理为 3D 批量格式
         single = (ecg.ndim == 2)
         if single:

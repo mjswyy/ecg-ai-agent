@@ -59,6 +59,12 @@ def main():
                         help="L2 regularization strength (对InceptionTime推荐1e-3)")
     parser.add_argument("--dropout", type=float, default=None,
                         help="Override backbone dropout rate (InceptionTime默认0.1, 过拟合时可升到0.3-0.5)")
+    parser.add_argument("--label-smoothing", type=float, default=0.0,
+                        help="Label smoothing factor (0=关闭, 推荐0.05-0.1)")
+    parser.add_argument("--augment-prob", type=float, default=1.0,
+                        help="每种数据增强的独立应用概率 (默认1.0, 减小可降低噪声)")
+    parser.add_argument("--grad-noise", type=float, default=0.0,
+                        help="梯度噪声标准差 (0=关闭, 推荐0.001-0.01)")
     parser.add_argument("--device", default=detect_device())
     parser.add_argument("--output-dir", default="/cache/output")
     parser.add_argument("--pretrain-only", action="store_true")
@@ -83,11 +89,14 @@ def main():
     model = ArrhythmiaClassifier(backbone, num_classes=27)
     logger.info(f"Model: {sum(p.numel() for p in model.parameters()):,} parameters"
                 f" | dropout={backbone_kwargs.get('dropout', 'default')}"
-                f" | weight_decay={args.weight_decay}")
+                f" | weight_decay={args.weight_decay}"
+                f" | label_smoothing={args.label_smoothing}"
+                f" | augment_prob={args.augment_prob}"
+                f" | grad_noise={args.grad_noise}")
 
     # Data
     label_extractor = LabelExtractor()
-    augmentor = ECGAugmentor(random_seed=42)
+    augmentor = ECGAugmentor(random_seed=42, apply_prob=args.augment_prob)
 
     if args.quick_test:
         logger.info("Quick test mode: small epochs for smoke test")
@@ -159,6 +168,8 @@ def main():
         loss_fn=loss_fn,
         lr=args.lr,
         weight_decay=args.weight_decay,
+        label_smoothing=args.label_smoothing,
+        grad_noise=args.grad_noise,
         early_stopping_patience=args.patience,
     )
 
