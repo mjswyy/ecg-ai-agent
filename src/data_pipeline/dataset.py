@@ -109,8 +109,8 @@ class ECGDataset(Dataset):
         record = self.file_list[idx]
         signal_path = self.data_dir / record["signal_file"]
 
-        # 加载信号
-        signal = np.load(signal_path).astype(np.float32)
+        # 加载信号，替换 NaN/Inf 为 0（NPU 上 NaN 会污染梯度）
+        signal = np.nan_to_num(np.load(signal_path).astype(np.float32), nan=0.0, posinf=0.0, neginf=0.0)
 
         # === 形状校正 ===
         # 正确的: (12, L) → 不处理
@@ -198,7 +198,7 @@ class ECGContrastiveDataset(Dataset):
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         """返回同一信号的两个增强视图作为正样本对。"""
-        signal = np.load(self.file_list[idx]).astype(np.float32)
+        signal = np.nan_to_num(np.load(self.file_list[idx]).astype(np.float32), nan=0.0, posinf=0.0, neginf=0.0)
 
         # 形状校正（含异常形状检测）
         if signal.ndim == 2 and signal.shape[1] == 12 and signal.shape[0] != 12:
@@ -268,7 +268,7 @@ class ECGDatasetForAgent(Dataset):
     def __getitem__(self, idx: int) -> Dict:
         """返回完整的样本信息字典。"""
         record = self.file_list[idx]
-        signal = np.load(self.data_dir / record["signal_file"]).astype(np.float32)
+        signal = np.nan_to_num(np.load(self.data_dir / record["signal_file"]).astype(np.float32), nan=0.0, posinf=0.0, neginf=0.0)
 
         # 形状校正
         if signal.ndim == 2 and signal.shape[1] == 12 and signal.shape[0] != 12:
