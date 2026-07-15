@@ -360,7 +360,8 @@ class ECGTrainer:
                 )
 
                 # 早停（用 val_auc 判断，比 val_f1 更适合极端不平衡数据）
-                if val_metrics["macro_auc"] > best_val_auc:
+                # min_delta: 改善小于此值不重置计数器，避免微小波动拖长训练
+                if val_metrics["macro_auc"] > best_val_auc + 1e-4:
                     best_val_auc = val_metrics["macro_auc"]
                     patience_counter = 0
                     if save_best:
@@ -427,16 +428,30 @@ class ECGTrainer:
                 aucs.append(roc_auc_score(labels[:, c], probs[:, c]))
         macro_auc = float(np.mean(aucs)) if aucs else 0.0
 
-        # Macro F1 (阈值=0.5)
-        preds = (probs >= 0.5).astype(np.float32)
+        # Macro F1 + Challenge Score（逐类搜索最优阈值，而非一刀切 0.5）
+        from sklearn.metrics import precision_recall_curve
+        best_thresholds = []
+        preds_optimal = np.zeros_like(probs, dtype=np.float32)
+        for c in range(num_classes):
+            if labels[:, c].sum() == 0:
+                best_thresholds.append(0.5)
+                continue
+            prec, rec, thresh = precision_recall_curve(labels[:, c], probs[:, c])
+            # 选择 F1 最大的阈值
+            f1_curve = 2 * prec[:-1] * rec[:-1] / (prec[:-1] + rec[:-1] + 1e-8)
+            best_idx = int(np.argmax(f1_curve))
+            best_thresh = float(thresh[best_idx]) if len(thresh) > best_idx else 0.5
+            best_thresholds.append(best_thresh)
+            preds_optimal[:, c] = (probs[:, c] >= best_thresh).astype(np.float32)
+
         f1s = []
         for c in range(num_classes):
             if labels[:, c].sum() > 0:
-                f1s.append(f1_score(labels[:, c], preds[:, c], zero_division=0))
+                f1s.append(f1_score(labels[:, c], preds_optimal[:, c], zero_division=0))
         macro_f1 = float(np.mean(f1s)) if f1s else 0.0
 
-        # Challenge Score: (F_beta + G_beta) / 2
-        challenge = self._challenge_score(labels, probs)
+        # Challenge Score: 用最优阈值重新计算
+        challenge = self._challenge_score(labels, preds_optimal, probs, best_thresholds)
 
         # mAP
         try:
@@ -456,7 +471,10 @@ class ECGTrainer:
         }
 
     @staticmethod
-    def _challenge_score(labels: np.ndarray, probs: np.ndarray, beta: float = 2.0) -> float:
+    def _challenge_score(labels: np.ndarray, probs: np.ndarray,
+                         preds_binary: np.ndarray = None,
+                         thresholds: list = None,
+                         beta: float = 2.0) -> float:
         """PhysioNet 2020 Challenge 官方评分指标。
 
         Challenge Score = (F_beta + G_beta) / 2
@@ -465,9 +483,14 @@ class ECGTrainer:
 
         IDCG 只累加前 n_pos 个位置（真实正样本数），而非全部位置。
         零正样本的类别自动跳过。
+
+        参数:
+            preds_binary: 预计算的最优阈值二值预测（可选，None=用0.5）
+            thresholds:   逐类最优阈值列表（保留，供外部使用）
         """
         beta2 = beta ** 2
-        preds_binary = (probs >= 0.5).astype(np.float32)
+        if preds_binary is None:
+            preds_binary = (probs >= 0.5).astype(np.float32)
 
         tp = (preds_binary * labels).sum(axis=0)
         fp = ((1 - labels) * preds_binary).sum(axis=0)
