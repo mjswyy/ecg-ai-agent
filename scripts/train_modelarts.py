@@ -137,10 +137,27 @@ def sync_output_to_obs():
         logger.info("Outputs remain at /cache/output (may be lost after job ends).")
 
 
+def install_dependencies():
+    """安装训练依赖。NumPy 必须先降级，再安装 requirements.txt。"""
+    # NumPy 必须先降级（PyTorch 2.1 + CANN 8.0 基于 NumPy 1.x 编译）
+    subprocess.run(
+        [sys.executable, "-m", "pip", "install", "numpy<2", "--quiet"],
+        check=False,
+    )
+    # 安装项目全部依赖
+    subprocess.run(
+        [sys.executable, "-m", "pip", "install", "-r", "requirements.txt", "--quiet"],
+        check=False,
+    )
+
+
 def main():
     logger.info("=" * 60)
     logger.info("ECG AI Agent — ModelArts Training Job")
     logger.info("=" * 60)
+
+    # 0. Install dependencies (must be before any torch import)
+    install_dependencies()
 
     # 1. Validate NPU environment
     validate_environment()
