@@ -324,12 +324,13 @@ class ECGTrainer:
 
                 # 梯度噪声: 在 optimizer step 前添加高斯噪声
                 # 隐式正则化，鼓励收敛到平坦极小值（Neelakantan et al. 2015）
+                # 噪声标准差 = grad_noise * sqrt(eta_t)，其中 eta_t 随时间衰减
                 if grad_noise > 0:
+                    eta_t = 1.0 / (1 + self.current_epoch) ** 0.55
+                    noise_std = grad_noise * eta_t
                     for p in self.model.parameters():
                         if p.grad is not None:
-                            noise = torch.randn_like(p.grad) * grad_noise
-                            eta = lr / (1 + self.current_epoch) ** 0.55
-                            p.grad.add_(noise * eta / lr)
+                            p.grad.add_(torch.randn_like(p.grad) * noise_std)
 
                 self.scaler.step(optimizer)
                 self.scaler.update()
