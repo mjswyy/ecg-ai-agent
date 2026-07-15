@@ -268,7 +268,7 @@ class ECGTrainer:
         scheduler = self._cosine_schedule(optimizer, epochs, warmup_epochs)
 
         history = {"train_loss": [], "val_f1": [], "val_auc": []}
-        best_val_f1 = 0.0
+        best_val_auc = 0.0
         patience_counter = 0
         t0 = time.time()
 
@@ -340,9 +340,9 @@ class ECGTrainer:
                     f"val_auc={val_metrics['macro_auc']:.4f}"
                 )
 
-                # 早停
-                if val_metrics["macro_f1"] > best_val_f1:
-                    best_val_f1 = val_metrics["macro_f1"]
+                # 早停（用 val_auc 判断，比 val_f1 更适合极端不平衡数据）
+                if val_metrics["macro_auc"] > best_val_auc:
+                    best_val_auc = val_metrics["macro_auc"]
                     patience_counter = 0
                     if save_best:
                         self._save_checkpoint("best_model.pt")
@@ -356,7 +356,7 @@ class ECGTrainer:
                 break
 
         logger.info(f"多标签训练完成，耗时 {time.time()-t0:.0f}s")
-        self.best_metric = best_val_f1
+        self.best_metric = best_val_auc
         return history
 
     # ================================================================

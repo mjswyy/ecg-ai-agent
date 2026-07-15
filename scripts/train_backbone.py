@@ -63,6 +63,8 @@ def main():
     parser.add_argument("--no-amp", action="store_true")
     parser.add_argument("--quick-test", action="store_true",
                         help="Quick overfitting test on 100 samples")
+    parser.add_argument("--patience", type=int, default=10,
+                        help="Early stopping patience (0 = disable)")
     args = parser.parse_args()
 
     device = args.device
@@ -147,6 +149,7 @@ def main():
         epochs=args.epochs,
         loss_fn=loss_fn,
         lr=args.lr,
+        early_stopping_patience=args.patience,
     )
 
     # === Step 3: Evaluate on test set ===
