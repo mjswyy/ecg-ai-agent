@@ -499,7 +499,7 @@ class ECGTrainer:
         剩余 epoch: Cosine 衰减
         """
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-            optimizer, T_max=epochs - warmup
+            optimizer, T_max=max(epochs - warmup, 1)
         )
         if warmup > 0:
             def warmup_fn(epoch):

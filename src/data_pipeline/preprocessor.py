@@ -323,6 +323,15 @@ class ECGPreprocessor:
                     normalized[i] = (lead - mean) / std
                 means.append(float(mean))
                 stds.append(float(std))
+            elif self.normalization == "minmax":
+                vmin = np.min(valid_region)
+                vmax = np.max(valid_region)
+                if vmax - vmin < 1e-6:
+                    normalized[i] = lead - vmin  # 几乎恒定的信号
+                else:
+                    normalized[i] = (lead - vmin) / (vmax - vmin)
+                means.append(float(vmin))
+                stds.append(float(vmax))
 
         info = {"norm_method": self.normalization}
         if means:

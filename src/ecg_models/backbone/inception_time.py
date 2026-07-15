@@ -18,6 +18,7 @@ from typing import Optional
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class InceptionModule(nn.Module):
@@ -146,6 +147,7 @@ class InceptionTime(nn.Module):
             residual = proj(x)
             x = module(x)
             x = x + residual  # Residual connection
+            x = F.relu(x)
 
         x = self.dropout(x)
         x = self.pool(x).squeeze(-1)
