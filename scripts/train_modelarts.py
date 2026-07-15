@@ -35,27 +35,24 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def sync_data_from_obs():
-    """Sync training data from OBS to local cache via moxing.
+def find_data_dir():
+    """自动发现数据目录 — 扫描 /cache 下哪里能找到 train_manifest.json。
 
-    ModelArts automatically mounts OBS input to MA_INPUT_DIR.
-    We copy it to /cache/data for faster local I/O during training.
+    ModelArts 将 OBS 数据挂载到容器后，具体路径取决于输入参数名和挂载方式。
+    不用猜路径，直接扫描 manifest 文件定位。
     """
-    input_dir = os.environ.get("MA_INPUT_DIR", "/cache/data")
-    local_dir = "/cache/data"
+    from pathlib import Path
 
-    try:
-        import moxing as mox
-        logger.info(f"Syncing data: {input_dir} → {local_dir}")
-        mox.file.copy_parallel(input_dir, local_dir)
-        logger.info("Data sync complete.")
-    except ImportError:
-        logger.warning(
-            "moxing not available. Assuming data is already at /cache/data. "
-            "If running outside ModelArts, ensure data is at --data-dir."
-        )
-    except Exception as e:
-        logger.warning(f"Data sync failed: {e}. Trying to continue with local data.")
+    search_root = Path("/cache/data")
+    manifest_files = list(search_root.rglob("train_manifest.json"))
+
+    if manifest_files:
+        data_dir = str(manifest_files[0].parent)
+        logger.info(f"发现数据目录: {data_dir} (找到 train_manifest.json)")
+        return data_dir
+
+    logger.warning("未找到 train_manifest.json，使用默认路径 /cache/data/processed")
+    return "/cache/data/processed"
 
 
 def validate_environment():
@@ -87,13 +84,12 @@ def validate_environment():
         logger.info("ASCEND_HOME not set (non-Ascend environment or CPU mode).")
 
 
-def run_training():
+def run_training(data_dir: str):
     """Execute the standard training script with ModelArts-compatible paths."""
     backbone = os.environ.get("BACKBONE", "inception_time")
     epochs = os.environ.get("EPOCHS", "50")
     batch_size = os.environ.get("BATCH_SIZE", "128")
     lr = os.environ.get("LR", "1e-4")
-    data_dir = os.environ.get("MA_INPUT_DIR", "/cache/data")
     output_dir = os.environ.get("MA_OUTPUT_DIR", "/cache/output")
 
     # Ensure output directory exists
@@ -162,11 +158,11 @@ def main():
     # 1. Validate NPU environment
     validate_environment()
 
-    # 2. Sync data from OBS
-    sync_data_from_obs()
+    # 2. Auto-detect data directory
+    data_dir = find_data_dir()
 
     # 3. Run training
-    run_training()
+    run_training(data_dir)
 
     # 4. Sync outputs to OBS
     sync_output_to_obs()
