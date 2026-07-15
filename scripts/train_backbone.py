@@ -18,6 +18,7 @@ import sys
 from pathlib import Path
 
 import torch
+import torch.nn as nn
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -73,6 +74,8 @@ def main():
     parser.add_argument("--no-amp", action="store_true")
     parser.add_argument("--quick-test", action="store_true",
                         help="Quick overfitting test on 100 samples")
+    parser.add_argument("--loss", default="bce", choices=["bce", "asl"],
+                        help="Loss function: bce (BCEWithLogits) or asl (AsymmetricLoss)")
     parser.add_argument("--patience", type=int, default=10,
                         help="Early stopping patience (0 = disable)")
     args = parser.parse_args()
@@ -159,7 +162,11 @@ def main():
         use_amp=not args.no_amp,
     )
 
-    loss_fn = AsymmetricLoss(gamma_neg=4.0, gamma_pos=0.0)
+    loss_fn = (
+        AsymmetricLoss(gamma_neg=4.0, gamma_pos=0.0) if args.loss == "asl"
+        else nn.BCEWithLogitsLoss()
+    )
+    logger.info(f"Loss: {args.loss}")
 
     history = trainer.train_multilabel(
         train_loader=dm.train_dataloader(),
