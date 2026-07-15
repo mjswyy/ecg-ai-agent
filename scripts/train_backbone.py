@@ -55,6 +55,10 @@ def main():
     parser.add_argument("--batch-size", type=int, default=128)
     parser.add_argument("--epochs", type=int, default=50)
     parser.add_argument("--lr", type=float, default=1e-4)
+    parser.add_argument("--weight-decay", type=float, default=1e-4,
+                        help="L2 regularization strength (对InceptionTime推荐1e-3)")
+    parser.add_argument("--dropout", type=float, default=None,
+                        help="Override backbone dropout rate (InceptionTime默认0.1, 过拟合时可升到0.3-0.5)")
     parser.add_argument("--device", default=detect_device())
     parser.add_argument("--output-dir", default="/cache/output")
     parser.add_argument("--pretrain-only", action="store_true")
@@ -72,9 +76,14 @@ def main():
 
     # Build model
     backbone_fn = BACKBONES[args.backbone]
-    backbone = backbone_fn(in_channels=12)
+    backbone_kwargs = {"in_channels": 12}
+    if args.dropout is not None:
+        backbone_kwargs["dropout"] = args.dropout
+    backbone = backbone_fn(**backbone_kwargs)
     model = ArrhythmiaClassifier(backbone, num_classes=27)
-    logger.info(f"Model: {sum(p.numel() for p in model.parameters()):,} parameters")
+    logger.info(f"Model: {sum(p.numel() for p in model.parameters()):,} parameters"
+                f" | dropout={backbone_kwargs.get('dropout', 'default')}"
+                f" | weight_decay={args.weight_decay}")
 
     # Data
     label_extractor = LabelExtractor()
@@ -149,6 +158,7 @@ def main():
         epochs=args.epochs,
         loss_fn=loss_fn,
         lr=args.lr,
+        weight_decay=args.weight_decay,
         early_stopping_patience=args.patience,
     )
 
