@@ -48,13 +48,39 @@ class PositionalEncoding(nn.Module):
         self.register_buffer("pe", pe.unsqueeze(0))  # (1, max_len, d_model)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Add positional encoding.
-
-        Args:
-            x: (B, seq_len, d_model)
-        """
         x = x + self.pe[:, :x.size(1), :]
         return self.dropout(x)
+
+
+class _TransformerEncoderLayerNPU(nn.Module):
+    """单层 Transformer Encoder — 使用独立算子，NPU 全加速。
+
+    等价于 nn.TransformerEncoderLayer，但避免融合算子
+    aten::_transformer_encoder_layer_fwd 在 CANN 8.0.0 上的 CPU 回退。
+    """
+
+    def __init__(self, d_model: int, nhead: int, dim_feedforward: int = 2048,
+                 dropout: float = 0.1, activation: str = "gelu"):
+        super().__init__()
+        self.self_attn = nn.MultiheadAttention(d_model, nhead, dropout=dropout,
+                                                batch_first=True)
+        self.linear1 = nn.Linear(d_model, dim_feedforward)
+        self.dropout = nn.Dropout(dropout)
+        self.linear2 = nn.Linear(dim_feedforward, d_model)
+        self.norm1 = nn.LayerNorm(d_model, eps=1e-6)
+        self.norm2 = nn.LayerNorm(d_model, eps=1e-6)
+        self.dropout1 = nn.Dropout(dropout)
+        self.dropout2 = nn.Dropout(dropout)
+        self.activation = nn.GELU() if activation == "gelu" else nn.ReLU()
+
+    def forward(self, src: torch.Tensor) -> torch.Tensor:
+        # Self-attention + residual + norm
+        attn_out, _ = self.self_attn(src, src, src)
+        src = self.norm1(src + self.dropout1(attn_out))
+        # Feed-forward + residual + norm
+        ff_out = self.linear2(self.dropout(self.activation(self.linear1(src))))
+        src = self.norm2(src + self.dropout2(ff_out))
+        return src
 
 
 class ECGTransformer(nn.Module):
@@ -103,16 +129,20 @@ class ECGTransformer(nn.Module):
         self.pos_encoder = PositionalEncoding(d_model, max_len=max_seq_len,
                                                dropout=dropout)
 
-        # Transformer encoder
-        encoder_layer = nn.TransformerEncoderLayer(
-            d_model=d_model,
-            nhead=nhead,
-            dim_feedforward=dim_feedforward,
-            dropout=dropout,
-            activation="gelu",
-            batch_first=True,
-        )
-        self.encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+        # Transformer encoder — 手动实现每层，避免 NPU 不支持的融合算子
+        # nn.TransformerEncoderLayer 会调用 aten::_transformer_encoder_layer_fwd
+        # 该融合算子在 CANN 8.0.0 未适配，会回退 CPU。拆分为独立算子后全部在 NPU 运行。
+        self.encoder_layers = nn.ModuleList([
+            _TransformerEncoderLayerNPU(
+                d_model=d_model,
+                nhead=nhead,
+                dim_feedforward=dim_feedforward,
+                dropout=dropout,
+                activation="gelu",
+            )
+            for _ in range(num_layers)
+        ])
+        self.encoder_norm = nn.LayerNorm(d_model, eps=1e-6)
 
         self._feature_dim = d_model
         self.dropout = nn.Dropout(dropout)
@@ -121,9 +151,10 @@ class ECGTransformer(nn.Module):
     def _init_weights(self):
         nn.init.kaiming_normal_(self.lead_proj.weight, mode="fan_out",
                                 nonlinearity="relu")
-        for p in self.encoder.parameters():
-            if p.dim() > 1:
-                nn.init.xavier_uniform_(p)
+        for layer in self.encoder_layers:
+            for p in layer.parameters():
+                if p.dim() > 1:
+                    nn.init.xavier_uniform_(p)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass.
@@ -149,8 +180,10 @@ class ECGTransformer(nn.Module):
         # Positional encoding
         x = self.pos_encoder(x)
 
-        # Transformer encoder
-        x = self.encoder(x)  # (B, L', d_model)
+        # Transformer encoder — 逐层执行，每层用独立算子（NPU 全加速）
+        for layer in self.encoder_layers:
+            x = layer(x)
+        x = self.encoder_norm(x)
 
         # Global mean pooling
         x = x.mean(dim=1)  # (B, d_model)
