@@ -53,33 +53,63 @@ class PositionalEncoding(nn.Module):
 
 
 class _TransformerEncoderLayerNPU(nn.Module):
-    """单层 Transformer Encoder — 使用独立算子，NPU 全加速。
+    """单层 Transformer Encoder — 全部使用基础算子，NPU 全加速。
 
-    等价于 nn.TransformerEncoderLayer，但避免融合算子
-    aten::_transformer_encoder_layer_fwd 在 CANN 8.0.0 上的 CPU 回退。
+    避免 PyTorch 2.1 的两个融合算子在 CANN 8.0.0 上回退 CPU：
+    - aten::_transformer_encoder_layer_fwd（nn.TransformerEncoderLayer）
+    - aten::_native_multi_head_attention（nn.MultiheadAttention）
     """
 
     def __init__(self, d_model: int, nhead: int, dim_feedforward: int = 2048,
                  dropout: float = 0.1, activation: str = "gelu"):
         super().__init__()
-        self.self_attn = nn.MultiheadAttention(d_model, nhead, dropout=dropout,
-                                                batch_first=True)
+        assert d_model % nhead == 0
+        self.d_model = d_model
+        self.nhead = nhead
+        self.head_dim = d_model // nhead
+        self.scale = self.head_dim ** -0.5
+
+        # QKV 投影合并为单个 Linear 减少算子数量
+        self.qkv_proj = nn.Linear(d_model, 3 * d_model, bias=True)
+        self.out_proj = nn.Linear(d_model, d_model, bias=True)
+
         self.linear1 = nn.Linear(d_model, dim_feedforward)
-        self.dropout = nn.Dropout(dropout)
         self.linear2 = nn.Linear(dim_feedforward, d_model)
+
         self.norm1 = nn.LayerNorm(d_model, eps=1e-6)
         self.norm2 = nn.LayerNorm(d_model, eps=1e-6)
-        self.dropout1 = nn.Dropout(dropout)
-        self.dropout2 = nn.Dropout(dropout)
+        self.dropout_attn = nn.Dropout(dropout)
+        self.dropout_ff = nn.Dropout(dropout)
         self.activation = nn.GELU() if activation == "gelu" else nn.ReLU()
 
     def forward(self, src: torch.Tensor) -> torch.Tensor:
-        # Self-attention + residual + norm
-        attn_out, _ = self.self_attn(src, src, src)
-        src = self.norm1(src + self.dropout1(attn_out))
-        # Feed-forward + residual + norm
-        ff_out = self.linear2(self.dropout(self.activation(self.linear1(src))))
-        src = self.norm2(src + self.dropout2(ff_out))
+        B, L, D = src.shape
+
+        # ---- Self-attention（手写，仅用 Linear + matmul + softmax） ----
+        qkv = self.qkv_proj(src)  # (B, L, 3*D)
+        q, k, v = qkv.chunk(3, dim=-1)
+
+        # Reshape: (B, L, D) → (B, nhead, L, head_dim)
+        q = q.view(B, L, self.nhead, self.head_dim).transpose(1, 2)
+        k = k.view(B, L, self.nhead, self.head_dim).transpose(1, 2)
+        v = v.view(B, L, self.nhead, self.head_dim).transpose(1, 2)
+
+        attn_weights = (q @ k.transpose(-2, -1)) * self.scale
+        attn_weights = torch.softmax(attn_weights, dim=-1)
+        attn_weights = self.dropout_attn(attn_weights)
+        attn_out = attn_weights @ v  # (B, nhead, L, head_dim)
+
+        # Merge heads: (B, nhead, L, head_dim) → (B, L, D)
+        attn_out = attn_out.transpose(1, 2).contiguous().view(B, L, D)
+        attn_out = self.out_proj(attn_out)
+
+        # Residual + norm
+        src = self.norm1(src + attn_out)
+
+        # ---- Feed-forward + residual + norm ----
+        ff_out = self.linear2(self.dropout_ff(self.activation(self.linear1(src))))
+        src = self.norm2(src + ff_out)
+
         return src
 
 
