@@ -46,6 +46,7 @@ class LateFusion(nn.Module):
         )
 
         self._output_dim = output_dim
+        self._meta_dim = meta_dim
 
     @property
     def output_dim(self) -> int:
@@ -73,7 +74,7 @@ class LateFusion(nn.Module):
             text_features = text_features.mean(dim=1)
         if metadata_features is None:
             metadata_features = torch.zeros(
-                ecg_features.shape[0], self._output_dim,
+                ecg_features.shape[0], self._meta_dim,
                 device=ecg_features.device,
             )
 

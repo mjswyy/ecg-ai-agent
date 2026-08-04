@@ -94,6 +94,11 @@ class ECGTokenizer(nn.Module):
     def encode(self, x): z = self.encoder(x); return self.vq(z)  # → (tokens, features, loss, ppl)
     def decode(self, indices): return self.decoder(self.vq.codebook(indices).permute(0, 2, 1))
 
+    def encode_to_features(self, x):
+        """提取全局特征向量，兼容下游多模态模块 (ECGTextCLIP, MultimodalModel)."""
+        z = self.encoder(x)  # (B, D, L')
+        return z.mean(dim=-1)  # (B, D) 全局平均池化
+
     def forward(self, x):
         recon, indices, vq_loss, ppl = self.encode(x); recon = self.decode(indices)
         if recon.shape[2] > x.shape[2]:   recon = recon[:, :, :x.shape[2]]
@@ -126,3 +131,8 @@ class SimpleECGProjector(nn.Module):
     def forward(self, x):
         """(B, 12, L) → (B, output_dim)"""
         return self.proj(self.conv(x).squeeze(-1))
+
+    @property
+    def feature_dim(self) -> int:
+        """兼容 ECGTextCLIP 的 feature_dim 属性."""
+        return self.output_dim
