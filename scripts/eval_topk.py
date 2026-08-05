@@ -68,6 +68,13 @@ def main():
     except Exception as e:
         print(f"InceptionTime: SKIP ({e})")
 
+    try:
+        models["SimCLR xResNet"] = load_model(
+            xresnet1d_101,
+            "checkpoints/simclr_xresnet/best_model.pt", device)
+    except Exception as e:
+        print(f"SimCLR xResNet: SKIP ({e})")
+
     print(f"\nLoaded {len(models)} models: {list(models.keys())}\n")
 
     # Data

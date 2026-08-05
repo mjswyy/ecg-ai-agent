@@ -2,7 +2,6 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, r'C:\Users\llyun\Desktop\ecg资料\GitHub上的一些项目\ECGFounder')
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import argparse
@@ -10,7 +9,7 @@ import logging
 import numpy as np
 import torch
 import torch.nn as nn
-from net1d import Net1D
+from src.ecg_models.backbone.ecgfounder_net1d import Net1D
 
 from src.data_pipeline.dataset import ECGDataModule
 from src.data_pipeline.augmentor import ECGAugmentor

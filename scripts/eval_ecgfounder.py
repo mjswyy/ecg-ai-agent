@@ -3,7 +3,6 @@ import sys
 from pathlib import Path
 
 # Import ECGFounder source
-sys.path.insert(0, r'C:\Users\llyun\Desktop\ecg资料\GitHub上的一些项目\ECGFounder')
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import numpy as np
@@ -13,7 +12,7 @@ from sklearn.metrics import roc_auc_score, average_precision_score
 
 from src.data_pipeline.dataset import ECGDataModule
 from src.data_pipeline.label_extractor import LabelExtractor
-from net1d import Net1D
+from src.ecg_models.backbone.ecgfounder_net1d import Net1D
 
 
 # ============================================================
