@@ -1,3 +1,4 @@
+# ⚠️ DEPRECATED（2026-08-24，检查报告第六步）: AgentPipeline 未接入主流程（web_demo 使用自有 DemoPipeline）
 """
 Agent 管道 — 端到端 ECG 诊断工作流 / End-to-End ECG Diagnosis Pipeline.
 

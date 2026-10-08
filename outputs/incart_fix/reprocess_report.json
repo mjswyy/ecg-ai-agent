@@ -1,0 +1,1267 @@
+{
+ "n_targets": 74,
+ "n_done": 74,
+ "elapsed_s": 93.6,
+ "records": [
+  {
+   "record_id": "I0001",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0002",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0003",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0004",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0005",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0006",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0007",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0008",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0009",
+   "split": "val",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0010",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0011",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0012",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0013",
+   "split": "test",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0014",
+   "split": "val",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0015",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0016",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0017",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0018",
+   "split": "val",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0019",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0020",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0021",
+   "split": "test",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0022",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0023",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0024",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0025",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0026",
+   "split": "test",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0027",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0028",
+   "split": "test",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0029",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0030",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0031",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0032",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0033",
+   "split": "val",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0034",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0035",
+   "split": "test",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0037",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0038",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0039",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0040",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0041",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0042",
+   "split": "test",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0043",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0044",
+   "split": "test",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0045",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0046",
+   "split": "test",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0047",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0048",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0049",
+   "split": "test",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0050",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0051",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0052",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0053",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0054",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0055",
+   "split": "val",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0056",
+   "split": "val",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0057",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0058",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0059",
+   "split": "val",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0060",
+   "split": "val",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0061",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0062",
+   "split": "val",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0063",
+   "split": "test",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0064",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0065",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0066",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0067",
+   "split": "test",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0068",
+   "split": "val",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0069",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0070",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0071",
+   "split": "test",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0072",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0073",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0074",
+   "split": "train",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  },
+  {
+   "record_id": "I0075",
+   "split": "val",
+   "fs": 257.0,
+   "raw_len": 462600,
+   "resampled_len": 900000,
+   "seg_len": 5000,
+   "pad": [
+    0,
+    0
+   ],
+   "old_tail100_zeros": 0,
+   "new_tail100_zeros": 0,
+   "old_std": 1.0,
+   "new_std": 1.0,
+   "reordered": false
+  }
+ ],
+ "any_new_tail_zero": false,
+ "old_tail_zero_total": 0
+}

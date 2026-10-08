@@ -1,0 +1,60 @@
+patched injected records (10):
+  #29 A0358 true_top1=Atrial Fibrillation
+  #32 E06079 true_top1=Right Bundle Branch Block
+  #57 HR21781 true_top1=Myocardial Infarction
+  #58 Q1014 true_top1=Premature Atrial Contraction
+  #71 Q0237 true_top1=Ventricular Ectopic Beats
+  #90 E07151 true_top1=ST Elevation
+  #99 Q2624 true_top1=Complete AV Block
+  #100 HR14509 true_top1=Myocardial Ischemia
+  #117 A1683 true_top1=Right Bundle Branch Block
+  #132 E02053 true_top1=Left Bundle Branch Block
+
+=== new metrics_main.json ===
+{
+  "n_records": 133,
+  "tool_selection": {
+    "precision": 0.568,
+    "recall": 1.0,
+    "exact_match": 5
+  },
+  "injection": {
+    "n_injected": 10,
+    "catch_rate_report": 1.0,
+    "conflict_flag_rate_control": 0.0407,
+    "catch_rate_verdict": 1.0,
+    "revise_rate_control": 0.7154
+  },
+  "hallucination": {
+    "n_claims": 611,
+    "n_hallucinated": 2,
+    "rate": 0.0033
+  },
+  "top5_accuracy": 0.9699,
+  "judge": null,
+  "use_report_arm": false,
+  "use_kb_arm": false
+}
+
+=== old metrics_main.json (before recompute) ===
+{
+  "n_records": 133,
+  "tool_selection": {
+    "precision": 0.568,
+    "recall": 1.0
+  },
+  "injection": {
+    "n_injected": 10,
+    "catch_rate_verdict": 1.0,
+    "catch_rate_report": 1.0
+  },
+  "hallucination": {
+    "n_claims": 611,
+    "n_hallucinated": 2,
+    "rate": 0.0033
+  },
+  "top5_accuracy": 0.9323,
+  "judge": null,
+  "use_report_arm": false,
+  "use_kb_arm": false
+}

@@ -1,0 +1,66 @@
+{
+ "mimic": {
+  "n": 500,
+  "mean_max_prob": 0.997,
+  "mean_entropy": 3.4019,
+  "mean_n_positive_tasks": 5.51,
+  "top5_tasks": [
+   [
+    "ABNORMAL ECG",
+    229
+   ],
+   [
+    "NORMAL SINUS RHYTHM",
+    150
+   ],
+   [
+    "SINUS RHYTHM",
+    54
+   ],
+   [
+    "SINUS BRADYCARDIA",
+    35
+   ],
+   [
+    "SINUS TACHYCARDIA",
+    15
+   ]
+  ],
+  "signal_quality": {
+   "mean_flat_leads": 0.002,
+   "n_all_flat": 0
+  }
+ },
+ "cinc": {
+  "n": 500,
+  "mean_max_prob": 0.9977,
+  "mean_entropy": 3.3889,
+  "mean_n_positive_tasks": 5.212,
+  "top5_tasks": [
+   [
+    "ABNORMAL ECG",
+    221
+   ],
+   [
+    "NORMAL SINUS RHYTHM",
+    175
+   ],
+   [
+    "SINUS RHYTHM",
+    42
+   ],
+   [
+    "SINUS BRADYCARDIA",
+    41
+   ],
+   [
+    "SINUS TACHYCARDIA",
+    6
+   ]
+  ],
+  "signal_quality": {
+   "mean_flat_leads": 0.014,
+   "n_all_flat": 1
+  }
+ }
+}

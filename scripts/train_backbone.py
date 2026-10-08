@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ⚠️ DEPRECATED（2026-08-24，检查报告第六步）: 旧 NPU 从零训练（成绩单 0.791/0.808/0.822 的历史路径）；现役发现层 = ECGFounder+MLP
 """Train ECG Backbone — Contrastive pretraining + multi-label fine-tuning.
 
 Usage:
@@ -73,15 +74,24 @@ def main():
     parser.add_argument("--num-workers", type=int, default=4)
     parser.add_argument("--no-amp", action="store_true")
     parser.add_argument("--quick-test", action="store_true",
-                        help="Quick overfitting test on 100 samples")
+                        help="快速冒烟测试：pretrain_epochs<=3、epochs<=2，"
+                             "对比学习路径取 200 条样本（3F-y6 修正）")
     parser.add_argument("--loss", default="bce", choices=["bce", "asl"],
                         help="Loss function: bce (BCEWithLogits) or asl (AsymmetricLoss)")
     parser.add_argument("--patience", type=int, default=10,
                         help="Early stopping patience (0 = disable)")
     args = parser.parse_args()
 
+    # 检查报告 1.9 修复：补齐随机种子（torch/numpy/python），保证可复现
+    import random
+    import numpy as np
+    seed = 42
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+
     device = args.device
-    logger.info(f"Device: {device} | Backbone: {args.backbone}")
+    logger.info(f"Device: {device} | Backbone: {args.backbone} | seed={seed}")
 
     # Build model
     backbone_fn = BACKBONES[args.backbone]
@@ -139,9 +149,11 @@ def main():
             lr=args.lr,
         )
 
-        if args.pretrain_only:
-            logger.info("Pretraining complete. Exiting.")
-            return
+        # 4E/4F 审查修复：💡-1 —— 外层已处于 if args.pretrain_only 分支，内层
+        # if args.pretrain_only: 恒真属死代码；--pretrain_only 语义即"仅预训练"，
+        # 预训练后直接退出。
+        logger.info("Pretraining complete. Exiting.")
+        return
 
     # === Step 2: Multi-label Fine-tuning ===
     logger.info("=== Multi-label Fine-tuning ===")
@@ -182,7 +194,9 @@ def main():
 
     # === Step 3: Evaluate on test set ===
     logger.info("=== Test Evaluation ===")
-    metrics = trainer.evaluate(dm.test_dataloader())
+    # 2E-O7 修复：测试集评估用训练中验证集确定的阈值（禁止测试集现算）
+    metrics = trainer.evaluate(dm.test_dataloader(),
+                               thresholds=trainer.val_thresholds)
     for k, v in metrics.items():
         logger.info(f"  {k}: {v:.4f}")
 

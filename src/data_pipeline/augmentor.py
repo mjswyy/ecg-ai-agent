@@ -28,7 +28,6 @@ import logging
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
-from scipy import interpolate
 
 logger = logging.getLogger(__name__)
 
@@ -210,15 +209,36 @@ class ECGAugmentor:
 
         result = np.zeros_like(ecg)
         orig_positions = np.arange(L)
-        warped_positions = orig_positions * scale  # 扭曲后的位置
 
+        # 2A 🟠 修复：scale<1（压缩）时旧版 warped_positions 定义域仅到
+        # (L-1)*scale，查询超出部分全部落在尾部 fill_value → 尾部最长
+        # (1-scale)·L 为常量平台（信息丢失）。改为"内容居中承载"：
+        # 原信号线性插值压缩到 keep 个采样点置于信号中心，两端补边界值，
+        # 常量仅剩两端各 (1-scale)/2 比例。
+        if scale < 1.0:
+            keep = max(int(L * scale), 2)
+            half = (L - keep) // 2
+            xs = np.linspace(0.0, L - 1.0, keep)
+            for i in range(ecg.shape[0]):
+                ys = np.interp(xs, orig_positions, ecg[i])
+                result[i, half:half + keep] = ys
+                result[i, :half] = ecg[i][0]
+                result[i, half + keep:] = ecg[i][-1]
+            return result
+
+        # 4B 审查修复：🟠-2 scale>1（拉伸）改为与压缩对称的"内容居中承载"。
+        # 旧版在 orig_positions(0..L-1) 上查询被拉伸域 [0,(L-1)*scale]，等价于
+        # "取前 1/scale 部分拉伸铺满"，系统性丢弃信号尾部（scale=1.2 丢末尾 ~17%）。
+        # 现将原始信号沿原定义域 [0, L-1] 等距拉伸到 stretched_len 个采样点，
+        # 再居中截取 L 个承载段——复检1 措辞终稿：头端让出 (stretched_len-L)//2、
+        # 尾端让出剩余（stretched_len-L 为奇数时尾端多让 1），较旧版"只丢尾"
+        # 更合理，无外推伪影（np.interp 查询域恰为 [0, L-1]）。
+        stretched_len = int(round((L - 1) * scale)) + 1
+        xs = np.linspace(0.0, L - 1.0, stretched_len)
+        start = (stretched_len - L) // 2
         for i in range(ecg.shape[0]):
-            interp_func = interpolate.interp1d(
-                warped_positions, ecg[i],
-                kind="linear", bounds_error=False,
-                fill_value=(ecg[i][0], ecg[i][-1]),  # 边界值填充（非外推）
-            )
-            result[i] = interp_func(orig_positions)
+            stretched = np.interp(xs, orig_positions, ecg[i])
+            result[i] = stretched[start:start + L]
 
         return result
 
@@ -287,7 +307,8 @@ class ECGAugmentor:
         L = ecg.shape[1]
         seg_len = L // num_segments
         if seg_len < 10:
-            return ecg  # 分段太短，跳过
+            # 4B 审查修复：💡-1 返回副本，保持"不修改入参"语义一致
+            return ecg.copy()  # 分段太短，跳过
 
         # 分割
         segments = []
@@ -298,14 +319,9 @@ class ECGAugmentor:
 
         # 随机排列
         order = self.rng.permutation(num_segments)
+        # 4B 审查修复：💡-1 删除不可达的 >L/<L 对齐分支——segments 精确铺满
+        # [0, L]（末段 end=L），concatenate 后长度恒等于 L。
         shuffled = np.concatenate([segments[i] for i in order], axis=1)
-
-        # 对齐长度
-        if shuffled.shape[1] > L:
-            shuffled = shuffled[:, :L]
-        elif shuffled.shape[1] < L:
-            pad_width = ((0, 0), (0, L - shuffled.shape[1]))
-            shuffled = np.pad(shuffled, pad_width, mode="constant")
 
         return shuffled
 

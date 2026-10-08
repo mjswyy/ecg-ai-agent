@@ -1,4 +1,6 @@
+# ⚠️ DEPRECATED（2026-08-24，检查报告第六步）: 旧 ECGFounder 评估脚本
 """ECGFounder Benchmark: linear probe vs our models."""
+from src.utils.safe_load import safe_torch_load
 import sys
 from pathlib import Path
 
@@ -27,7 +29,7 @@ def load_ecgfounder(ckpt_path):
         kernel_size=16, stride=2, groups_width=16,
         n_classes=150, use_bn=False, use_do=False, verbose=False,
     )
-    ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=False)
+    ckpt = safe_torch_load(ckpt_path, map_location="cpu")
     model.load_state_dict(ckpt["state_dict"], strict=True)
     model.eval()
     feature_dim = ckpt["state_dict"]["dense.weight"].shape[1]

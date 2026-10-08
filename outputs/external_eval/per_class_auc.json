@@ -1,0 +1,201 @@
+{
+ "classes": [
+  {
+   "class": "Sinus Tachycardia",
+   "n_positive": 237,
+   "auc": 0.9954
+  },
+  {
+   "class": "Bradycardia",
+   "n_positive": 34,
+   "auc": 0.9896
+  },
+  {
+   "class": "Left Anterior Fascicular Block",
+   "n_positive": 196,
+   "auc": 0.9875
+  },
+  {
+   "class": "Complete Right Bundle Branch Block",
+   "n_positive": 83,
+   "auc": 0.9873
+  },
+  {
+   "class": "Left Bundle Branch Block",
+   "n_positive": 108,
+   "auc": 0.9867
+  },
+  {
+   "class": "Right Axis Deviation",
+   "n_positive": 35,
+   "auc": 0.985
+  },
+  {
+   "class": "Sinus Bradycardia",
+   "n_positive": 218,
+   "auc": 0.9845
+  },
+  {
+   "class": "Atrial Fibrillation",
+   "n_positive": 341,
+   "auc": 0.9825
+  },
+  {
+   "class": "Right Bundle Branch Block",
+   "n_positive": 205,
+   "auc": 0.9809
+  },
+  {
+   "class": "First Degree AV Block",
+   "n_positive": 270,
+   "auc": 0.9751
+  },
+  {
+   "class": "Pacing Rhythm",
+   "n_positive": 34,
+   "auc": 0.9732
+  },
+  {
+   "class": "Sinus Rhythm",
+   "n_positive": 2070,
+   "auc": 0.9716
+  },
+  {
+   "class": "Prolonged PR Interval",
+   "n_positive": 29,
+   "auc": 0.9712
+  },
+  {
+   "class": "Sinus Arrhythmia",
+   "n_positive": 109,
+   "auc": 0.9696
+  },
+  {
+   "class": "Incomplete Right Bundle Branch Block",
+   "n_positive": 168,
+   "auc": 0.953
+  },
+  {
+   "class": "Left Axis Deviation",
+   "n_positive": 605,
+   "auc": 0.9491
+  },
+  {
+   "class": "Premature Atrial Contraction",
+   "n_positive": 197,
+   "auc": 0.9442
+  },
+  {
+   "class": "Prolonged QT Interval",
+   "n_positive": 161,
+   "auc": 0.9429
+  },
+  {
+   "class": "Atrial Flutter",
+   "n_positive": 30,
+   "auc": 0.9218
+  },
+  {
+   "class": "Low QRS Voltages",
+   "n_positive": 54,
+   "auc": 0.9142
+  },
+  {
+   "class": "Supraventricular Premature Beats",
+   "n_positive": 25,
+   "auc": 0.9142
+  },
+  {
+   "class": "T Wave Abnormal",
+   "n_positive": 456,
+   "auc": 0.8997
+  },
+  {
+   "class": "Q Wave Abnormal",
+   "n_positive": 72,
+   "auc": 0.8936
+  },
+  {
+   "class": "Ventricular Premature Beats",
+   "n_positive": 38,
+   "auc": 0.887
+  },
+  {
+   "class": "Premature Ventricular Contractions",
+   "n_positive": 23,
+   "auc": 0.8834
+  },
+  {
+   "class": "T Wave Inversion",
+   "n_positive": 118,
+   "auc": 0.8572
+  },
+  {
+   "class": "Nonspecific Intraventricular Conduction Disorder",
+   "n_positive": 80,
+   "auc": 0.83
+  }
+ ],
+ "top_confusion_pairs": [
+  [
+   "Sinus Rhythm->T Wave Inversion",
+   110
+  ],
+  [
+   "Sinus Rhythm->T Wave Abnormal",
+   79
+  ],
+  [
+   "Sinus Rhythm->Premature Ventricular Contractions",
+   74
+  ],
+  [
+   "Sinus Rhythm->Prolonged QT Interval",
+   61
+  ],
+  [
+   "Sinus Rhythm->Left Axis Deviation",
+   60
+  ],
+  [
+   "Sinus Rhythm->Q Wave Abnormal",
+   58
+  ],
+  [
+   "Sinus Rhythm->Supraventricular Premature Beats",
+   57
+  ],
+  [
+   "Sinus Rhythm->Sinus Arrhythmia",
+   49
+  ],
+  [
+   "Sinus Rhythm->Incomplete Right Bundle Branch Block",
+   49
+  ],
+  [
+   "Sinus Rhythm->First Degree AV Block",
+   47
+  ],
+  [
+   "Sinus Rhythm->Nonspecific Intraventricular Conduction Disorder",
+   45
+  ],
+  [
+   "T Wave Abnormal->Sinus Rhythm",
+   41
+  ],
+  [
+   "Sinus Rhythm->Low QRS Voltages",
+   40
+  ],
+  [
+   "Sinus Rhythm->Premature Atrial Contraction",
+   38
+  ],
+  [
+   "Sinus Rhythm->Sinus Bradycardia",
+   35
+  ]
+ ]
+}

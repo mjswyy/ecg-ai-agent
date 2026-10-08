@@ -79,6 +79,9 @@ class ECGTrainer:
         # 训练状态追踪
         self.current_epoch = 0
         self.best_metric = 0.0
+        # 2E-O7 修复：fit 过程中在验证集上确定的最优阈值（测试集评估必须用它，
+        # 禁止在测试集上现算阈值——样本内拟合乐观）
+        self.val_thresholds: Optional[np.ndarray] = None
 
     # ================================================================
     # SimCLR 对比预训练
@@ -218,9 +221,16 @@ class ECGTrainer:
         sim_j_i = torch.diag(sim, -z1.size(0))  # z2[i] 和 z1[i]
         positives = torch.cat([sim_i_j, sim_j_i], dim=0)  # (2B,)
 
-        # 构建 logits: 第0列是正样本，其余是负样本
-        mask = torch.eye(z.size(0), device=z.device, dtype=torch.bool)
-        negatives = sim[~mask].view(z.size(0), -1)  # (2B, 2B-1)
+        # 检查报告 1.4 修复：负样本掩码必须同时剔除自身与正样本对。
+        # 旧版只剔主对角线 → 每个锚点的正样本对同时出现在负样本集里，
+        # 训练目标自相矛盾（同一对被同时奖励和惩罚）。
+        mask = torch.zeros((z.size(0), z.size(0)), dtype=torch.bool,
+                           device=z.device)
+        mask.fill_diagonal_(True)                       # (i,i) 与 (i+B,i+B)
+        b = z1.size(0)
+        mask[torch.arange(b), torch.arange(b, 2 * b)] = True   # (i, i+B)
+        mask[torch.arange(b, 2 * b), torch.arange(b)] = True   # (i+B, i)
+        negatives = sim[~mask].view(z.size(0), z.size(0) - 2)  # (2B, 2B-2)
         logits = torch.cat([positives.unsqueeze(1), negatives], dim=1)
 
         labels = torch.zeros(z.size(0), dtype=torch.long, device=z.device)
@@ -274,6 +284,8 @@ class ECGTrainer:
         history = {"train_loss": [], "val_f1": [], "val_auc": []}
         best_val_auc = 0.0
         patience_counter = 0
+        best_state = None  # R6（2B 🟠-2）：best-val 权重快照，早停后回填
+        best_val_thresholds = None  # 第三轮审查 3C-TRAIN-1：best 时刻的 val 阈值快照
         t0 = time.time()
 
         for epoch in range(epochs):
@@ -286,8 +298,8 @@ class ECGTrainer:
                 signals = signals.to(self.device, non_blocking=self._use_non_blocking)
                 labels = labels.to(self.device, non_blocking=self._use_non_blocking)
 
-                # 标签平滑: 正样本 1→(1-smooth), 负样本 0→smooth
-                # 防止模型过自信（Szegedy et al. 2016, Inception-v3）
+                # 标签平滑（均匀平滑 ε）：正样本 1→1-ε/2，负样本 0→ε/2
+                # 第三轮审查 3C-TRAIN-4：注释与公式一致（旧版注释写 1→(1-ε) 与实现不符）
                 if label_smoothing > 0:
                     labels = labels * (1 - label_smoothing) + 0.5 * label_smoothing
 
@@ -324,7 +336,9 @@ class ECGTrainer:
 
                 # 梯度噪声: 在 optimizer step 前添加高斯噪声
                 # 隐式正则化，鼓励收敛到平坦极小值（Neelakantan et al. 2015）
-                # 噪声标准差 = grad_noise * sqrt(eta_t)，其中 eta_t 随时间衰减
+                # 第三轮审查 3C-TRAIN-5：注释与实现统一——噪声标准差 = grad_noise * eta_t
+                # （线性衰减，非 sqrt；与原文近似）；注意 AMP 下噪声加在缩放梯度上，
+                # 等效噪声经 scaler 反缩放后量级略有偏差（grad_clip=0 时无 unscale_）
                 if grad_noise > 0:
                     eta_t = 1.0 / (1 + self.current_epoch) ** 0.55
                     noise_std = grad_noise * eta_t
@@ -351,7 +365,9 @@ class ECGTrainer:
             # ---- 验证 ----
             val_msg = ""
             if val_loader is not None:
-                val_metrics = self.evaluate(val_loader)
+                # 2E-O7 修复：fit 内部对验证集现算阈值是合法用途（验证集定阈值），
+                # 并保存供后续测试集评估使用
+                val_metrics = self.evaluate(val_loader, fit_thresholds=True)
                 history["val_f1"].append(val_metrics["macro_f1"])
                 history["val_auc"].append(val_metrics["macro_auc"])
                 val_msg = (
@@ -364,16 +380,33 @@ class ECGTrainer:
                 if val_metrics["macro_auc"] > best_val_auc + 1e-4:
                     best_val_auc = val_metrics["macro_auc"]
                     patience_counter = 0
+                    # R6（2B 🟠-2）：保存 best-val 权重快照，训练结束后回填模型，
+                    # 保证"报告指标用的权重" == "best_model.pt 权重"
+                    best_state = {k: v.clone() for k, v in self.model.state_dict().items()}
+                    # 第三轮审查 3C-TRAIN-1：同步快照 best 时刻的 val 阈值
+                    # （旧版回填权重后 val_thresholds 仍是最后一轮阈值，口径失配）
+                    best_val_thresholds = (
+                        self.val_thresholds.copy() if self.val_thresholds is not None
+                        else None)
                     if save_best:
-                        self._save_checkpoint("best_model.pt")
+                        self._save_checkpoint("best_model.pt", best_val_auc)
                 else:
                     patience_counter += 1
 
             logger.info(f"Epoch {epoch+1}/{epochs} | loss={avg_loss:.4f} | {val_msg}")
 
-            if patience_counter >= early_stopping_patience:
+            # R6（2B 🟠-1）：patience=0 语义修复——文档称"0=禁用早停"，
+            # 旧版 patience=0 时第 1 个 epoch 后恒触发 break（只训 1 轮）
+            if early_stopping_patience > 0 and patience_counter >= early_stopping_patience:
                 logger.info(f"早停触发于 Epoch {epoch+1}")
                 break
+
+        # R6（2B 🟠-2）：早停/正常结束后回填 best-val 权重，与磁盘检查点一致
+        if best_state is not None:
+            self.model.load_state_dict(best_state)
+            if best_val_thresholds is not None:
+                self.val_thresholds = best_val_thresholds
+            logger.info("已回填验证集最优权重与对应阈值（与 best_model.pt 一致）")
 
         logger.info(f"多标签训练完成，耗时 {time.time()-t0:.0f}s")
         self.best_metric = best_val_auc
@@ -384,8 +417,14 @@ class ECGTrainer:
     # ================================================================
 
     @torch.no_grad()
-    def evaluate(self, loader: DataLoader) -> Dict:
+    def evaluate(self, loader: DataLoader,
+                 thresholds: Optional[np.ndarray] = None,
+                 fit_thresholds: bool = False) -> Dict:
         """评估多标签分类指标。
+
+        2E-O7 修复：阈值确定口径——fit_thresholds=True 仅允许 fit 内部
+        对验证集现算（验证集定阈值）；外部评估必须传验证集阈值
+        （thresholds），否则用 0.5 并告警，禁止在测试集上现算。
 
         计算: macro AUC, macro F1, Challenge Score, mAP。
 
@@ -428,21 +467,49 @@ class ECGTrainer:
                 aucs.append(roc_auc_score(labels[:, c], probs[:, c]))
         macro_auc = float(np.mean(aucs)) if aucs else 0.0
 
-        # Macro F1 + Challenge Score（逐类搜索最优阈值，而非一刀切 0.5）
-        from sklearn.metrics import precision_recall_curve
-        best_thresholds = []
-        preds_optimal = np.zeros_like(probs, dtype=np.float32)
-        for c in range(num_classes):
-            if labels[:, c].sum() == 0:
-                best_thresholds.append(0.5)
-                continue
-            prec, rec, thresh = precision_recall_curve(labels[:, c], probs[:, c])
-            # 选择 F1 最大的阈值
-            f1_curve = 2 * prec[:-1] * rec[:-1] / (prec[:-1] + rec[:-1] + 1e-8)
-            best_idx = int(np.argmax(f1_curve))
-            best_thresh = float(thresh[best_idx]) if len(thresh) > best_idx else 0.5
-            best_thresholds.append(best_thresh)
-            preds_optimal[:, c] = (probs[:, c] >= best_thresh).astype(np.float32)
+        # Macro F1 + Challenge Score（逐类阈值：验证集确定或显式传入）
+        from sklearn.metrics import roc_curve
+        if fit_thresholds:
+            # 仅 fit 内部对验证集现算（验证集定阈值）并保存
+            # 4D-ORANGE-6 修复：判据改为 Youden J = TPR - FPR（与协议宣称一致；
+            # 旧版 F1-max 口径与 train_ecgfounder_head/classification.youden_thresholds 脱节）
+            best_thresholds = []
+            preds_optimal = np.zeros_like(probs, dtype=np.float32)
+            for c in range(num_classes):
+                if labels[:, c].sum() == 0:
+                    best_thresholds.append(0.5)
+                    continue
+                if labels[:, c].sum() == len(labels):
+                    # 4D 定向复查（δ）：全正类 roc_curve 的 fpr=NaN → argmax
+                    # 退化取 thresh[0]=inf，inf 写入检查点后在测试集恒判负
+                    # （该类 F1=0）——全正类无区分性，阈值取 0.5 阻断 inf
+                    # 5D 审查（🟡-3）：全正类的最优预测是全 1（precision=recall
+                    # =F1=1），旧版 preds_optimal[:,c] 从不赋值（保持全 0）
+                    # 把该类 F1 从 1.0 低估为 0.0，拉低 macro_f1/Challenge Score
+                    best_thresholds.append(0.5)
+                    preds_optimal[:, c] = 1.0
+                    continue
+                fpr, tpr, thresh = roc_curve(labels[:, c], probs[:, c])
+                j = tpr - fpr
+                best_thresh = float(thresh[int(np.argmax(j))]) if len(thresh) else 0.5
+                # 复检2 修复（🟡-1）：sklearn 1.9 的 roc_curve 对任意类别返回
+                # thresh[0]=inf——混合类 argmax==0（无区分度/AUC<0.5）时同样
+                # 取到 inf（全正类守卫之外的第二缺口）；inf 会写进检查点并在
+                # 测试集恒判负。非有限阈值一律回退 0.5
+                if not np.isfinite(best_thresh):
+                    best_thresh = 0.5
+                best_thresholds.append(best_thresh)
+                preds_optimal[:, c] = (probs[:, c] >= best_thresh).astype(np.float32)
+            self.val_thresholds = np.array(best_thresholds, dtype=np.float32)
+        elif thresholds is not None:
+            best_thresholds = list(np.asarray(thresholds, dtype=np.float32))
+            preds_optimal = (probs >= np.asarray(thresholds, dtype=np.float32)).astype(np.float32)
+        else:
+            logger.warning(
+                "evaluate() 未传 thresholds 且非 fit_thresholds 模式：用 0.5 默认值"
+                "（2E-O7：禁止在测试集上现算阈值，请传验证集阈值 trainer.val_thresholds）")
+            best_thresholds = [0.5] * num_classes
+            preds_optimal = (probs >= 0.5).astype(np.float32)
 
         f1s = []
         for c in range(num_classes):
@@ -451,11 +518,20 @@ class ECGTrainer:
         macro_f1 = float(np.mean(f1s)) if f1s else 0.0
 
         # Challenge Score: 用最优阈值重新计算
-        challenge = self._challenge_score(labels, preds_optimal, probs, best_thresholds)
+        # 检查报告 1.9 修复：实参错位——签名是 (labels, probs, preds_binary, thresholds)，
+        # 旧版把二值预测传给了 probs、把概率传给了 preds_binary → Challenge Score 失真
+        challenge = self._challenge_score(labels, probs, preds_optimal, best_thresholds)
 
         # mAP
+        # 第三轮审查 3C-TRAIN-3：与 macro_auc 口径一致——仅对 0<sum<len 的类别
+        # 计算 AP 后取平均（旧版 average='macro' 把无正样本类按 0 计入，系统性拉低）
         try:
-            mAP = float(average_precision_score(labels, probs, average="macro"))
+            ap_per_class = [
+                average_precision_score(labels[:, c], probs[:, c])
+                for c in range(num_classes)
+                if 0 < labels[:, c].sum() < len(labels)
+            ]
+            mAP = float(np.mean(ap_per_class)) if ap_per_class else 0.0
         except Exception:
             mAP = 0.0
 
@@ -557,23 +633,46 @@ class ECGTrainer:
             )
         return scheduler
 
-    def _save_checkpoint(self, filename: str):
-        """保存模型检查点。"""
+    def _save_checkpoint(self, filename: str, best_metric: Optional[float] = None):
+        """保存模型检查点。
+
+        R6（2B 🟡-1）：best_metric 由调用方传入（训练中保存的检查点
+        self.best_metric 尚为初值 0.0，旧版元数据恒为 0）。
+        """
         path = self.output_dir / filename
-        torch.save(
-            {
-                "epoch": self.current_epoch,
-                "model_state_dict": self.model.state_dict(),
-                "best_metric": self.best_metric,
-            },
-            path,
-        )
+        ckpt = {
+            "epoch": self.current_epoch,
+            "model_state_dict": self.model.state_dict(),
+            "best_metric": (best_metric if best_metric is not None
+                            else self.best_metric),
+        }
+        # 4D-ORANGE-7 修复：val_thresholds 随检查点保存——旧版只存权重，
+        # 加载后 val_thresholds=None、测试指标无法按验证集阈值复现
+        if self.val_thresholds is not None:
+            ckpt["val_thresholds"] = np.asarray(self.val_thresholds, dtype=np.float32)
+        torch.save(ckpt, path)
         logger.info(f"检查点已保存: {path}")
 
-    def load_checkpoint(self, path: str):
-        """加载模型检查点。"""
-        ckpt = torch.load(path, map_location=self.device)
-        self.model.load_state_dict(ckpt["model_state_dict"])
+    def load_checkpoint(self, path: str, strict: bool = True, key_prefix: str = ""):
+        """加载模型检查点。
+
+        第三轮审查 3C-TRAIN-2：改用 safe_torch_load（weights_only 白名单口径，
+        旧版裸 torch.load 绕过仓库安全加载）；支持可选 key 前缀剥离与 strict。
+        第三轮审查 3C-CKPT-1：磁盘上的历史检查点（2026-08-29 前生成）的
+        best_metric 元数据恒为 0.0（修复前产物）——消费方不应依赖该字段，
+        如需真实值请重新训练生成。
+        """
+        from src.utils.safe_load import safe_torch_load
+        ckpt = safe_torch_load(path, map_location=self.device)
+        sd = ckpt["model_state_dict"]
+        if key_prefix and any(k.startswith(key_prefix) for k in sd):
+            sd = {k[len(key_prefix):]: v for k, v in sd.items()}
+        self.model.load_state_dict(sd, strict=strict)
         self.current_epoch = ckpt["epoch"]
         self.best_metric = ckpt.get("best_metric", 0.0)
-        logger.info(f"检查点已加载 (epoch={self.current_epoch})")
+        # 4D-ORANGE-7：加载检查点中的验证集阈值（旧检查点无该字段则保持 None，
+        # 消费方需自行从验证集重算或传入 thresholds）
+        if ckpt.get("val_thresholds") is not None:
+            self.val_thresholds = np.asarray(ckpt["val_thresholds"], dtype=np.float32)
+        logger.info(f"检查点已加载 (epoch={self.current_epoch}, "
+                    f"val_thresholds={'有' if self.val_thresholds is not None else '无'})")

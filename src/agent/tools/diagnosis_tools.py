@@ -109,9 +109,8 @@ def register_diagnosis_tools(registry, model=None, detector=None, label_extracto
         description="检测异常/不寻常的 ECG 模式（无监督异常检测）。",
         schema={"ecg_signal": {"type": "array"}},
     )
-    registry.register(
-        "generate_report", generate_report,
-        description="从收集到的发现中生成结构化诊断报告。",
-        schema={"features": {"type": "object"}, "diagnoses": {"type": "array"}},
-        dependencies=["classify_arrhythmia"],
-    )
+    # 4A/4J 审查修复：🟡-2 移除 generate_report 的注册（已从默认计划/mock 计划/
+    # reflector._is_critical 统一移除；generate_report 函数保留但不再注册——
+    # 其输出恒为"心率 N/A"且被综合逻辑忽略，属无效步骤）。
+    # 💡-2 本注册清单即"运行时实际可被 Agent 调用的工具全集"，与默认计划、
+    # mock 计划、few-shot 示例刻意独立（各自用途不同，不强行单一事实源）。

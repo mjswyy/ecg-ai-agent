@@ -11,12 +11,17 @@ ECG 综合分析工具 — 基于 ECGFounder 150 类预训练模型。
 """
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import argparse
 import json
 import numpy as np
 import torch
+# 复检3 修复（🟡）：safe_torch_load 的 import 必须在 sys.path.insert 之后
+# （旧版位于其前，`python scripts/analyze_ecg.py` 直接 ModuleNotFoundError，
+# 仅 -m 模式可用）
+from src.utils.safe_load import safe_torch_load
 from src.ecg_models.backbone.ecgfounder_net1d import Net1D
 
 
@@ -28,7 +33,7 @@ def load_model(ckpt_path):
         kernel_size=16, stride=2, groups_width=16,
         n_classes=150, use_bn=False, use_do=False, verbose=False,
     )
-    ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=False)
+    ckpt = safe_torch_load(ckpt_path, map_location="cpu")
     model.load_state_dict(ckpt["state_dict"], strict=True)
     model.eval()
     return model
@@ -42,6 +47,8 @@ def load_task_names():
 
 def analyze(ecg_signal, model, task_names, fs=500, top_k=20, threshold=0.3):
     """返回结构化分析结果."""
+    # 第三轮审查 3F-R3-10：threshold 参数真正用于 level 判定
+    # （旧版接收后从未使用，level 硬编码 0.7/0.3）
     # Pad 4096 → 5000
     x = torch.from_numpy(ecg_signal).float().unsqueeze(0)
     if x.shape[-1] < 5000:
@@ -67,7 +74,7 @@ def analyze(ecg_signal, model, task_names, fs=500, top_k=20, threshold=0.3):
             "name": name,
             "probability": p,
             "category": cat,
-            "level": "HIGH" if p >= 0.7 else "MED" if p >= 0.3 else "LOW",
+            "level": "HIGH" if p >= 0.7 else "MED" if p >= threshold else "LOW",
         })
 
     # 按类别分组
@@ -81,7 +88,7 @@ def analyze(ecg_signal, model, task_names, fs=500, top_k=20, threshold=0.3):
     return {
         "findings": findings,
         "categories": categories,
-        "summary": _generate_summary(findings),
+        "summary": _generate_summary(findings, threshold=threshold),
     }
 
 
@@ -103,9 +110,12 @@ def _classify_category(name):
     return "Other"
 
 
-def _generate_summary(findings):
+def _generate_summary(findings, threshold=0.3):
+    # 4A/4J 审查修复：🟡-10 summary 分级使用传入的 threshold 参数作为 MED 下界
+    # （旧版硬编码 0.3，--threshold 0.5 时 "level" 与 "summary 的 MEDIUM 段"
+    # 口径不一致）。HIGH 上界仍固定 0.7，与 analyze() 的 level 判定一致。
     high = [f for f in findings if f["probability"] >= 0.7]
-    medium = [f for f in findings if 0.3 <= f["probability"] < 0.7]
+    medium = [f for f in findings if threshold <= f["probability"] < 0.7]
     lines = []
     if high:
         lines.append(f"[HIGH] {len(high)} findings:")
@@ -123,7 +133,7 @@ def _generate_summary(findings):
 def main():
     parser = argparse.ArgumentParser(description="ECG 综合分析 (ECGFounder 150-class)")
     parser.add_argument("--ecg", type=str, help="ECG .npy 或 .hea 文件路径")
-    parser.add_argument("--index", type=int, help="测试集索引（0-6471）")
+    parser.add_argument("--index", type=int, help="测试集索引（0-3753，患者级划分）")
     parser.add_argument("--ckpt", default="checkpoints/ECGFounder/12_lead_ECGFounder.pth")
     parser.add_argument("--top-k", type=int, default=20)
     parser.add_argument("--threshold", type=float, default=0.3)
@@ -137,9 +147,14 @@ def main():
 
     # Get ECG signal
     if args.index is not None:
-        data_dir = Path("data/physionet2020/processed")
-        with open(data_dir / "test_manifest.json") as f:
+        # 第三轮审查 3F-R3-10：读取现役 processed_5k（患者级划分，test=3754）
+        # （旧版读 processed/ 且 help 硬编码 0-6471 与磁盘不符）
+        data_dir = Path("data/physionet2020/processed_5k")
+        with open(data_dir / "test_manifest.json", encoding="utf-8") as f:
             manifest = json.load(f)
+        n_test = len(manifest["files"])
+        if not (0 <= args.index < n_test):
+            parser.error(f"--index 超出范围（0-{n_test-1}）")
         entry = manifest["files"][args.index]
         ecg = np.nan_to_num(np.load(data_dir / entry["signal_file"]).astype(np.float32),
                             nan=0.0, posinf=0.0, neginf=0.0)
@@ -154,9 +169,27 @@ def main():
         if ecg_path.suffix == ".npy":
             ecg = np.nan_to_num(np.load(ecg_path).astype(np.float32), nan=0.0, posinf=0.0, neginf=0.0)
         elif ecg_path.suffix == ".hea":
-            ecg = np.nan_to_num(
-                np.loadtxt(ecg_path.parent / ecg_path.stem, skiprows=1).astype(np.float32),
-                nan=0.0, posinf=0.0, neginf=0.0)
+            # 检查报告 1.9 修复：旧版用 np.loadtxt 读 WFDB 二进制 → 静默垃圾诊断。
+            # 改用 wfdb 正确解析（含 format 16/212 解码），并按 .hea 导联重排。
+            # 4A/4J 审查修复：🟠-4 补齐与 web_demo 上传路径一致的完整预处理链
+            # （旧版只 reorder+nan_to_num，非 500Hz/非 5000 样本输入时基被错误
+            # 拉伸后直接喂给 500Hz 训练的 Net1D，产出失真诊断且无提示）。
+            try:
+                import wfdb
+                # 5J 审查（💡-8）：显式 scripts 包导入（旧版裸 import 仅 -m 模式
+                # 可用，且 ImportError 被误报为"需要安装 wfdb"）
+                import scripts.preprocess_data_5k as p5
+            except ImportError:
+                print("需要安装 wfdb（或确认在项目根目录运行）")
+                sys.exit(1)
+            rec = wfdb.rdrecord(str(ecg_path.with_suffix("")))
+            ecg = rec.p_signal.T.astype(np.float32)
+            # ECGFounder 协议预处理（原生 fs）：reorder → filter → resample → segment → zscore
+            ecg, _ = p5.reorder_leads(ecg, list(rec.sig_name))
+            ecg = p5.filter_bandpass(ecg, rec.fs)
+            ecg = p5.resample_to_500(ecg, rec.fs)
+            ecg, pl, pr = p5.segment_to_5000(ecg)
+            ecg = p5.official_zscore(ecg, pl, pr)
         else:
             print(f"Unsupported format: {ecg_path.suffix}")
             sys.exit(1)
@@ -176,10 +209,13 @@ def main():
         print(f"{'='*60}")
         print(result["summary"])
         print(f"\n--- Details ---")
+        # 4A 定向复查（γ）：Details 段分档随 --threshold 贯通（旧版第二档
+        # 硬编码 0.3，与 summary 的 MED 下界脱节）；HIGH 档保持 0.7 与 level 一致
         for cat, finds in result["categories"].items():
             print(f"\n[{cat}]")
             for f in finds[:8]:
-                marker = "***" if f["probability"] >= 0.7 else "** " if f["probability"] >= 0.3 else " * "
+                marker = ("***" if f["probability"] >= 0.7
+                          else "** " if f["probability"] >= args.threshold else " * ")
                 print(f"  {marker} {f['name']:<45s}  {f['probability']:.1%}")
 
 

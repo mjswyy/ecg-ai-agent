@@ -1,5 +1,1 @@
-from .cross_attention import CrossAttentionFusion
-from .gated_fusion import GatedFusion
-from .late_fusion import LateFusion
-
-__all__ = ["CrossAttentionFusion", "GatedFusion", "LateFusion"]
+# fusion 包已随旧多模态栈下线（R5/2C），不再导出任何模块。

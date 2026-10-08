@@ -1,0 +1,48 @@
+{
+ "n_records": 37749,
+ "n_patients": 34875,
+ "split_patients": {
+  "train": 27900,
+  "val": 3487,
+  "test": 3488
+ },
+ "split_records": {
+  "train": 30232,
+  "val": 3763,
+  "test": 3754
+ },
+ "leak_verification": {
+  "train_test": 0,
+  "train_val": 0,
+  "val_test": 0
+ },
+ "test_class_distribution": {
+  "Sinus Rhythm": 2070,
+  "Left Axis Deviation": 605,
+  "T Wave Abnormal": 456,
+  "Atrial Fibrillation": 341,
+  "First Degree AV Block": 270,
+  "Sinus Tachycardia": 237,
+  "Sinus Bradycardia": 218,
+  "Right Bundle Branch Block": 205,
+  "Premature Atrial Contraction": 197,
+  "Left Anterior Fascicular Block": 196,
+  "Incomplete Right Bundle Branch Block": 168,
+  "Prolonged QT Interval": 161,
+  "T Wave Inversion": 118,
+  "Sinus Arrhythmia": 109,
+  "Left Bundle Branch Block": 108,
+  "Complete Right Bundle Branch Block": 83,
+  "Nonspecific Intraventricular Conduction Disorder": 80,
+  "Q Wave Abnormal": 72,
+  "Low QRS Voltages": 54,
+  "Ventricular Premature Beats": 38,
+  "Right Axis Deviation": 35,
+  "Bradycardia": 34,
+  "Pacing Rhythm": 34,
+  "Atrial Flutter": 30,
+  "Prolonged PR Interval": 29,
+  "Supraventricular Premature Beats": 25,
+  "Premature Ventricular Contractions": 23
+ }
+}

@@ -1,4 +1,6 @@
+# ⚠️ DEPRECATED（2026-08-24，检查报告第六步）: ECGFounder 微调实验；项目最终采用冻结特征路线（train_ecgfounder_head.py），本脚本未用于论文数字
 """ECGFounder Fine-tuning — 在 30K 数据上微调 10M+ 预训练模型."""
+from src.utils.safe_load import safe_torch_load
 import sys
 from pathlib import Path
 
@@ -36,7 +38,7 @@ class ECGFounderClassifier(nn.Module):
         )
 
         # Load pretrained weights
-        ckpt = torch.load(pretrained_path, map_location="cpu", weights_only=False)
+        ckpt = safe_torch_load(pretrained_path, map_location="cpu")
         self.backbone.load_state_dict(ckpt["state_dict"], strict=True)
         logger.info(f"Loaded ECGFounder from epoch {ckpt.get('epoch', '?')}")
 
@@ -87,6 +89,14 @@ def main():
                         help="只训练分类头（线性探针模式）")
     args = parser.parse_args()
 
+    # 2B 🟡-3 修复：全链路固定随机种子（旧版无种子，训练不可复现）
+    import random
+    import numpy as np
+    import torch as _torch
+    random.seed(42)
+    np.random.seed(42)
+    _torch.manual_seed(42)
+
     device = args.device
     logger.info(f"Device: {device} | Fine-tuning ECGFounder")
 
@@ -129,7 +139,8 @@ def main():
     logger.info("=" * 60)
     logger.info("Test Evaluation")
     logger.info("=" * 60)
-    metrics = trainer.evaluate(dm.test_dataloader())
+    metrics = trainer.evaluate(dm.test_dataloader(),
+                               thresholds=trainer.val_thresholds)  # 2E-O7：验证集阈值
     for k, v in metrics.items():
         logger.info(f"  {k}: {v:.4f}")
 

@@ -1,5 +1,9 @@
 """Medical Reasoner — Chain-of-Thought reasoning for ECG interpretation.
 
+检查报告 1.9/第六步 注：本类被 ECGAIAgent.__init__ 实例化，但 reason()
+未接入主流程（agent 的综合诊断走 _synthesize_diagnosis）；推理链由
+eval_agent_llm.py 的报告提示词承载。保留类以备接入，未接入前勿依赖。
+
 Generates step-by-step clinical reasoning chains using the LLM.
 
 Usage:

@@ -1,0 +1,6 @@
+{
+  "n_train_pairs": 10596,
+  "n_val_pairs": 2247,
+  "best_sum_r1": 0.1816,
+  "proj_dim": 512
+}

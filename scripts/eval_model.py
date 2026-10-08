@@ -1,3 +1,4 @@
+# ⚠️ DEPRECATED（2026-08-24，检查报告第六步）: 旧单模型评估脚本（被 eval_per_source/eval_per_class 取代）
 """Evaluate a trained model checkpoint on the test set."""
 import argparse
 import sys
@@ -43,7 +44,10 @@ def main():
         num_workers=0, label_extractor=LabelExtractor()
     )
     dm.setup()
-    metrics = trainer.evaluate(dm.test_dataloader())
+    # 2E-O7 修复：测试集评估用验证集阈值（trainer.load_checkpoint 加载的
+    # 检查点附带 val_thresholds；若为空则 evaluate 会告警并回退 0.5）
+    metrics = trainer.evaluate(dm.test_dataloader(),
+                               thresholds=getattr(trainer, "val_thresholds", None))
 
     print("\n" + "=" * 50)
     print("Test Set Evaluation")

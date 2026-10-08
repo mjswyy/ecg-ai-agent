@@ -1,5 +1,13 @@
 """Prompt Templates — Medical prompt engineering for ECG diagnosis.
 
+检查报告 1.9/第六步 注：
+  - SYSTEM_PROMPT 现役：被 eval_agent_llm.py / eval_agent_context.py /
+    web_demo/app.py / verify_llm.py 共同引用，请勿删除。
+  - PLANNING_PROMPT / REASONING_PROMPT / REFLECTION_PROMPT 仅被 verify_llm.py
+    作参考对照；planner/reasoner/reflector 实际使用各自内联 prompt，两者
+    存在内容漂移（SA4 🟡）。统一模板源未列入本次修复范围，修改任一侧时
+    注意同步另一侧。
+
 Provides structured prompt templates for different stages of the
 Agent workflow: planning, reasoning, reflection, and report generation.
 """

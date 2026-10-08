@@ -1,8 +1,18 @@
-"""ECGFounder Multimodal — 多模态 ECG-Text 融合分类.
+"""⚠️ 已废弃（检查报告 1.7）：本脚本是含标签泄漏的旧版多模态实验。
+
+问题: 末尾打印的 "Test macro_auc" 实际用 val_loader（同一验证集既选最优模型又做
+"测试"评估，双重乐观）——旧 0.971 泄漏实验数字来自此脚本。
+公平版替代: `train_multimodal_fair.py`（M1.3，信号-only 推理，无报告文本泄漏）。
+仅保留作历史对照，勿再用于新实验。
+
+4E/4F 审查修复：🟡-1/2/3 —— 本脚本依赖的 metadata_encoder / cross_attention 已下线
+（import 即抛 RuntimeError）；且 fusion 参数 nhead 与签名 num_heads 不符、--no-text 并不真正
+关闭文本分支。即 import 即崩、已不可运行，仅供存档，勿用。
 
 架构: ECGFounder(冻结) + PubMedBERT(冻结) + CrossAttentionFusion → 27类
 数据: PTB-XL 15,110 ECG-文本对
 """
+from src.utils.safe_load import safe_torch_load
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -44,7 +54,7 @@ class ECGFounderMultimodal(nn.Module):
             kernel_size=16, stride=2, groups_width=16,
             n_classes=150, use_bn=False, use_do=False, verbose=False,
         )
-        ckpt = torch.load(ecgfounder_ckpt, map_location="cpu", weights_only=False)
+        ckpt = safe_torch_load(ecgfounder_ckpt, map_location="cpu")
         self.ecg_encoder.load_state_dict(ckpt["state_dict"], strict=True)
         # Remove classification head, keep backbone
         self.ecg_encoder.dense = nn.Identity()
@@ -308,7 +318,9 @@ def main():
     # Test
     logger.info("Test evaluation...")
     # Load best model
-    best_ckpt = torch.load(Path(args.output_dir) / "best_model.pt", map_location=device)
+    # 3F-YELLOW-8 修复：与全仓 safe_torch_load 口径一致（旧版裸 torch.load）
+    best_ckpt = safe_torch_load(Path(args.output_dir) / "best_model.pt",
+                                map_location=device)
     model.load_state_dict(best_ckpt["model_state_dict"])
     model.eval()
 
@@ -328,7 +340,9 @@ def main():
         if 0 < test_labels[:, c].sum() < len(test_labels):
             aucs.append(roc_auc_score(test_labels[:, c], test_probs[:, c]))
     test_auc = float(np.mean(aucs)) if aucs else 0.0
-    logger.info(f"Test macro_auc: {test_auc:.4f}")
+    logger.warning("⚠️ 以下 'Test macro_auc' 实为验证集分数（本脚本已废弃，"
+                   "见脚本头说明；公平版请用 train_multimodal_fair.py）")
+    logger.info(f"Val-as-test macro_auc: {test_auc:.4f}")
 
     logger.info("Done!")
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+# ⚠️ DEPRECATED（2026-08-24，检查报告第六步）: NPU 集群训练脚本（云端历史环境专用）
 #SBATCH --job-name=ecg_train           # 任务名称
 #SBATCH --partition=Students           # USTC 107 学生分区
 #SBATCH --qos=qos_stu_default          # 学生默认 QoS

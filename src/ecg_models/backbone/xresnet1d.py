@@ -4,7 +4,9 @@ Based on Ribeiro et al. "Automatic Diagnosis of the 12-lead ECG Using a
 Deep Neural Network" (Nature Communications, 2020).
 
 Key design decisions from the challenge-winning solution:
-    - Bottleneck blocks with kernel_size=3 (not 1-3-1)
+    # 第三轮审查 3C-XRES-1：修正注释——Bottleneck1D 实为 1×1→k×k→1×1（1-3-1）结构，
+    # 与 Ribeiro 原版一致（旧版注释误称 "not 1-3-1"）
+    - Bottleneck blocks with kernel_size=3（1×1→3×3→1×1）
     - 4 stages with depths [3, 4, 23, 3]
     - Stem: Conv1d(kernel=15, stride=2)
     - Global average pooling → 512-dim features

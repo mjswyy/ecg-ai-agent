@@ -1,0 +1,24 @@
+{
+  "n_records": 3,
+  "tool_selection": {
+    "precision": 0.6667,
+    "recall": 0.8,
+    "exact_match": 0
+  },
+  "injection": {
+    "n_injected": 0,
+    "catch_rate_report": null,
+    "conflict_flag_rate_control": 0.0,
+    "catch_rate_verdict": null,
+    "revise_rate_control": 0.0
+  },
+  "hallucination": {
+    "n_claims": 0,
+    "n_hallucinated": 0,
+    "rate": null
+  },
+  "top5_accuracy": 0.6667,
+  "judge": null,
+  "use_report_arm": false,
+  "use_kb_arm": false
+}

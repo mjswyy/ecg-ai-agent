@@ -8,6 +8,13 @@ SNOMED CT 代码表示。本模块处理:
     - 多标签编码/解码
     - 类别名称解析和统计
 
+注意（类别索引顺序，4B 审查修复 🟠-1）:
+    类别索引按 SNOMED CT 码字符串的字典序建立
+    （LabelExtractor.__init__ 中的 sorted(CHALLENGE_CLASSES.items())），
+    与官方 dx_mapping_scored.csv 的行序（按诊断名首字母排序）不同。
+    二者 27 个码的"集合"完全一致、码级映射一致；阈值/标签/class_names
+    均按 class_names 键名对齐，而非 CSV 行号。切勿按 CSV 行号索引 class_names。
+
 参考文献:
     Reyna et al. "Classification of 12-lead ECGs: the PhysioNet/Computing
     in Cardiology Challenge 2020"
@@ -18,6 +25,7 @@ SNOMED CT 代码表示。本模块处理:
     # → np.array([1, 1, 0, ...])  形状 (27,) 的 multi-hot 向量
 """
 
+import collections
 import json
 import logging
 from pathlib import Path
@@ -28,78 +36,60 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 # ============================================================================
-# 27 个官方 PhysioNet 2020 Challenge 诊断类别
+# 27 个官方 PhysioNet 2020 Challenge 评分类
 # 来源: https://github.com/physionetchallenges/evaluation-2020
-# 每个规范 SNOMED CT 代码对应一个评分类别
+#       dx_mapping_scored.csv（官方评分集，27 行）
+# 4B 审查修复：🟠-1 类序按 SNOMED 码字符串字典序（sorted()）建立，与官方
+# CSV 行序不同；27 码集合一致、码级映射一致，阈值/标签均按 class_names
+# 键名对齐而非 CSV 行号。切勿按 CSV 行号索引 class_names。
+# 第二次审查 R1 修复（2026-08-24）：旧版 27 类为自定义体系且存在多处
+# 码-名错配（如 427084000 官方窦速被标为 ST Elevation）；本版严格按
+# 官方评分类重写。官方注记"将 X 与 Y 计为同一诊断"的 3 对
+# （RBBB/CRBBB、PAC/SVPB、PVC/VPB）按官方表保留为独立类。
 # ============================================================================
 
 CHALLENGE_CLASSES: Dict[str, Dict] = {
-    # ------ 节律类 (9) ------
-    "426783006": {"name": "Sinus Rhythm",              "abbreviation": "SNR",   "category": "rhythm"},
-    "164889003": {"name": "Atrial Fibrillation",       "abbreviation": "AF",    "category": "rhythm"},
-    "164890007": {"name": "Atrial Flutter",            "abbreviation": "AFL",   "category": "rhythm"},
-    "426177001": {"name": "Sinus Bradycardia",         "abbreviation": "SB",    "category": "rhythm"},
-    "427393009": {"name": "Sinus Tachycardia",         "abbreviation": "STach", "category": "rhythm"},
-    "713422000": {"name": "Sinus Arrhythmia",          "abbreviation": "SA",    "category": "rhythm"},
-    "284470004": {"name": "Premature Atrial Contraction","abbreviation": "PAC", "category": "rhythm"},
-    "427172004": {"name": "Premature Ventricular Contractions","abbreviation": "PVC","category": "rhythm"},
-    "17338001":  {"name": "Ventricular Tachycardia",   "abbreviation": "VT",    "category": "rhythm"},
+    # ------ 节律类 (11) ------
+    "164889003": {"name": "Atrial Fibrillation",             "abbreviation": "AF",    "category": "rhythm"},
+    "164890007": {"name": "Atrial Flutter",                  "abbreviation": "AFL",   "category": "rhythm"},
+    "426177001": {"name": "Sinus Bradycardia",               "abbreviation": "SB",    "category": "rhythm"},
+    "426627000": {"name": "Bradycardia",                     "abbreviation": "Brady", "category": "rhythm"},
+    "426783006": {"name": "Sinus Rhythm",                    "abbreviation": "NSR",   "category": "rhythm"},
+    "427084000": {"name": "Sinus Tachycardia",               "abbreviation": "STach", "category": "rhythm"},
+    "427393009": {"name": "Sinus Arrhythmia",                "abbreviation": "SA",    "category": "rhythm"},
+    "284470004": {"name": "Premature Atrial Contraction",    "abbreviation": "PAC",   "category": "rhythm"},
+    "63593006":  {"name": "Supraventricular Premature Beats","abbreviation": "SVPB",  "category": "rhythm"},
+    "427172004": {"name": "Premature Ventricular Contractions","abbreviation": "PVC", "category": "rhythm"},
+    "17338001":  {"name": "Ventricular Premature Beats",     "abbreviation": "VPB",   "category": "rhythm"},
 
-    # ------ 传导类 (8) ------
-    "164909002": {"name": "Left Bundle Branch Block",  "abbreviation": "LBBB",  "category": "conduction"},
-    "59118001":  {"name": "Right Bundle Branch Block", "abbreviation": "RBBB",  "category": "conduction"},
-    "270492004": {"name": "First Degree AV Block",     "abbreviation": "IAVB",  "category": "conduction"},
-    "195042002": {"name": "Second Degree AV Block",    "abbreviation": "IIAVB", "category": "conduction"},
-    "27885002":  {"name": "Complete AV Block",         "abbreviation": "CAVB",  "category": "conduction"},
-    "251146004": {"name": "Incomplete Right Bundle Branch Block","abbreviation":"IRBBB","category":"conduction"},
-    "698252002": {"name": "Left Anterior Fascicular Block","abbreviation":"LAFB","category":"conduction"},
-    "10370003":  {"name": "Wolff-Parkinson-White",     "abbreviation": "WPW",   "category": "conduction"},
+    # ------ 传导类 (7) ------
+    "270492004": {"name": "First Degree AV Block",           "abbreviation": "IAVB",  "category": "conduction"},
+    "164909002": {"name": "Left Bundle Branch Block",        "abbreviation": "LBBB",  "category": "conduction"},
+    "59118001":  {"name": "Right Bundle Branch Block",       "abbreviation": "RBBB",  "category": "conduction"},
+    "713426002": {"name": "Incomplete Right Bundle Branch Block","abbreviation": "IRBBB","category": "conduction"},
+    "713427006": {"name": "Complete Right Bundle Branch Block","abbreviation": "CRBBB","category": "conduction"},
+    "445118002": {"name": "Left Anterior Fascicular Block",  "abbreviation": "LAFB", "category": "conduction"},  # 5I 审查（🟡）：标准缩写 LAFB（旧值 LAnFB 非通用，检索解析失败）
+    "698252002": {"name": "Nonspecific Intraventricular Conduction Disorder","abbreviation": "NSIVCB", "category": "conduction"},
 
-    # ------ 形态类 (10) ------
-    "164931005": {"name": "ST Depression",             "abbreviation": "STD",   "category": "morphology"},
-    "427084000": {"name": "ST Elevation",              "abbreviation": "STE",   "category": "morphology"},
-    "164934002": {"name": "T Wave Inversion",          "abbreviation": "TInv",  "category": "morphology"},
-    "59931005":  {"name": "T Wave Abnormal",           "abbreviation": "TAb",   "category": "morphology"},
-    "164861001": {"name": "Myocardial Infarction",     "abbreviation": "MI",    "category": "morphology"},
-    "164865005": {"name": "Myocardial Ischemia",       "abbreviation": "MIsch", "category": "morphology"},
-    "164884008": {"name": "Ventricular Ectopic Beats", "abbreviation": "VEB",   "category": "morphology"},
-    "111975006": {"name": "QT Prolonged",              "abbreviation": "QTP",   "category": "morphology"},
-    "446358003": {"name": "Right Ventricular Hypertrophy","abbreviation":"RVH", "category":"morphology"},
-    "429622005": {"name": "Low QRS Voltages",          "abbreviation": "LQRSV", "category": "morphology"},
+    # ------ 形态 / 轴 / 间期 / 起搏类 (9) ------
+    "164917005": {"name": "Q Wave Abnormal",                 "abbreviation": "QAb",   "category": "morphology"},
+    "164934002": {"name": "T Wave Abnormal",                 "abbreviation": "TAb",   "category": "morphology"},
+    "59931005":  {"name": "T Wave Inversion",                "abbreviation": "TInv",  "category": "morphology"},
+    "251146004": {"name": "Low QRS Voltages",                "abbreviation": "LQRSV", "category": "morphology"},
+    "39732003":  {"name": "Left Axis Deviation",             "abbreviation": "LAD",   "category": "axis"},
+    "47665007":  {"name": "Right Axis Deviation",            "abbreviation": "RAD",   "category": "axis"},
+    "111975006": {"name": "Prolonged QT Interval",           "abbreviation": "LQT",   "category": "interval"},
+    "164947007": {"name": "Prolonged PR Interval",           "abbreviation": "LPR",   "category": "interval"},
+    "10370003":  {"name": "Pacing Rhythm",                   "abbreviation": "PR",    "category": "pacing"},
 }
 
 # ============================================================================
-# SNOMED CT 等价映射表
-# 将非规范 SNOMED CT 代码映射到对应的 27 类规范代码
-# 只包含不在 CHALLENGE_CLASSES 中的代码
+# SNOMED CT 等价映射表（官方评分类体系下为空）
+# 官方 dx_mapping_scored.csv 的 27 个评分类即全部标签空间；不在评分集内的
+# 诊断码（ST 段改变、心肌梗死、缺血等）不参与评分，重贴标签时将被丢弃。
 # ============================================================================
 
-SNOMED_CT_EQUIVALENTS: Dict[str, str] = {
-    # 室性异位搏动等价 → VEB (164884008)
-    "428750005": "164884008",  # 室性早搏
-
-    # LBBB 等价 → LBBB (164909002)
-    "39732003": "164909002",   # 左束支传导阻滞（替代代码）
-
-    # 心肌缺血等价 → MIsch (164865005)
-    "164873001": "164865005",  # 心肌缺血（替代）
-    "445118002": "164865005",  # 急性心肌梗死（归入缺血）
-    "164930006": "164865005",  # ECG: 心肌缺血
-    "164867002": "164865005",  # ECG: 侧壁缺血
-    "164951009": "164865005",  # ECG: 缺血
-    "55930002": "164865005",   # 缺血变体
-    "67741000119109": "164865005",  # 异常Q波
-
-    # 心肌梗死等价 → MI (164861001)
-    "713426002": "164861001",  # 陈旧性心肌梗死
-    "713427006": "164861001",  # 陈旧性心梗（变体）
-    "47665007": "164861001",   # 心梗发现
-    "425623009": "164861001",  # 心梗发现变体
-    "428417006": "164861001",  # 心梗变体
-
-    # LBBB 等价
-    "164917005": "164909002",  # ECG: 左束支阻滞
-}
+SNOMED_CT_EQUIVALENTS: Dict[str, str] = {}
 
 
 class LabelExtractor:
@@ -117,6 +107,21 @@ class LabelExtractor:
         self.idx_to_snomed: Dict[int, str] = {}
         self.class_names: List[str] = []
 
+        # 4B 审查修复：🟡-2 num_classes≠27 时告警——字典序末位类别被静默丢弃，
+        # 会导致标签空间与模型头不一致（如 num_classes=26 丢 713427006 CRBBB）。
+        # 4B 定向复查（α）：>27 时实际 27 类全保留、多余维为死零维，消息措辞已修正
+        if num_classes != 27:
+            if num_classes < 27:
+                logger.warning(
+                    f"LabelExtractor(num_classes={num_classes}) < 27：按 SNOMED 字典序"
+                    f"截断，末尾 {27 - num_classes} 个类别被丢弃；请确认与模型头一致。"
+                )
+            else:
+                logger.warning(
+                    f"LabelExtractor(num_classes={num_classes}) > 27：27 个类别全保留，"
+                    f"多出 {num_classes - 27} 维为死零维；请确认与模型头一致。"
+                )
+
         # 按代码排序建立映射（保证确定性）
         for idx, (snomed, info) in enumerate(sorted(CHALLENGE_CLASSES.items())):
             if idx >= num_classes:
@@ -131,8 +136,9 @@ class LabelExtractor:
             if canonical in self.snomed_to_idx and code not in self._full_mapping:
                 self._full_mapping[code] = self.snomed_to_idx[canonical]
 
-        # 记录所有未匹配的代码（用于诊断和后续扩展映射表）
-        self._unmapped_codes: set = set()
+        # 4B 审查修复：🟡-1 记录所有未匹配代码及其真实出现次数（Counter），
+        # 供 get_unmapped_codes 返回真实计数而非恒 0。
+        self._unmapped_codes: collections.Counter = collections.Counter()
 
         logger.info(
             f"LabelExtractor: {len(self.snomed_to_idx)} 个规范类别, "
@@ -160,8 +166,8 @@ class LabelExtractor:
             if code in self._full_mapping:
                 active_indices.append(self._full_mapping[code])
             elif code.isdigit():
-                # 记录未匹配的代码以便后续添加映射
-                self._unmapped_codes.add(code)
+                # 记录未匹配的代码以便后续添加映射（计数真实出现次数）
+                self._unmapped_codes[code] += 1
 
         if format == "multi_hot":
             vec = np.zeros(self.num_classes, dtype=np.float32)
@@ -247,11 +253,11 @@ class LabelExtractor:
         logger.info(f"标签映射已保存至 {filepath}")
 
     def get_unmapped_codes(self) -> Dict[str, int]:
-        """返回所有遇到的未映射 SNOMED CT 代码（用于诊断和扩展映射表）。"""
-        return dict(sorted(
-            [(code, 0) for code in self._unmapped_codes],
-            key=lambda x: x[0],
-        ))
+        """返回所有遇到的未映射 SNOMED CT 代码及其真实出现次数。
+
+        4B 审查修复：🟡-1 旧版恒返回 {code: 0}；现返回 Counter 计数的真实频次。
+        """
+        return dict(sorted(self._unmapped_codes.items()))
 
     @classmethod
     def load_mapping(cls, filepath: Union[str, Path]) -> "LabelExtractor":

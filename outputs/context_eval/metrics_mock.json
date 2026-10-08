@@ -1,0 +1,11 @@
+{
+  "n_records": 2,
+  "parse_failures": 2,
+  "findings_consistency_rate": 0.0,
+  "findings_gt_overlap": 0.0,
+  "urgency_monotonicity_violations": 0,
+  "urgency_sensitivity_rate": 0.0,
+  "abnormal_ed_urgent_rate": null,
+  "risk_change_rate": 0.0,
+  "n_abnormal": 0
+}

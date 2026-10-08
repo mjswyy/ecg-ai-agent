@@ -5,12 +5,9 @@ Shenda Hong, Mar 2020
 """
 
 import numpy as np
-from collections import Counter
-from matplotlib import pyplot as plt
 
 import torch
 import torch.nn as nn
-import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 
@@ -369,6 +366,13 @@ class Net1D(nn.Module):
 
         # final prediction
         self.dense = nn.Linear(in_channels, n_classes)
+
+        # 第三轮审查 3C-YELLOW-7：标准特征维度接口（旧版无 feature_dim 属性，
+        # ArrhythmiaClassifier.__init__ / ecg_text_clip 读 backbone.feature_dim
+        # 会 AttributeError；ecgfounder_classifier 只能靠替换 dense 为 Identity
+        # 取特征——现提供标准出口，deep_features 维度 = 最后 stage 输出通道数）
+        self.feature_dim = filter_list[-1]
+        self.dense_in = in_channels
         
     def forward(self, x):
         

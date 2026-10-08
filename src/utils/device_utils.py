@@ -64,6 +64,26 @@ def detect_device(device_str: str = "auto") -> str:
     if device_str == "cuda" and not torch.cuda.is_available():
         logger.warning("指定了 CUDA 设备但 torch.cuda 不可用，回退到 CPU")
         return "cpu"
+    # 5E 审查（🟠-1）：显式多卡序号 "cuda:N"/"npu:N" 同样校验可用性与越界——
+    # 旧版直接原样返回，训练脚本 torch.device(detect_device(...)) 绕过
+    # get_device_object 的越界保护。复检B（🟡-1）：仅校验"加速器可用"不够，
+    # 加速器可用但序号越界（如 1-GPU 机上 "cuda:3"）仍会延迟到 .to() 崩溃
+    for prefix, avail, count_fn in (
+            ("cuda:", torch.cuda.is_available, torch.cuda.device_count),
+            ("npu:", _has_npu, None)):
+        if device_str.startswith(prefix):
+            if not avail():
+                logger.warning(f"指定 {device_str} 但 {prefix[:-1]} 不可用，回退到 CPU")
+                return "cpu"
+            try:
+                idx = int(device_str[len(prefix):])
+            except ValueError:
+                logger.warning(f"无法解析设备序号 {device_str}，回退到 CPU")
+                return "cpu"
+            if count_fn is not None and idx >= count_fn():
+                logger.warning(f"{device_str} 超出可见设备数({count_fn()})，回退到 CPU")
+                return "cpu"
+            return device_str
     return device_str
 
 
@@ -90,6 +110,32 @@ def get_device_object(device_str: str = "auto") -> torch.device:
         return torch.device("npu:0")
     elif resolved == "cuda":
         return torch.device("cuda:0")
+    elif resolved.startswith("cuda:") or resolved.startswith("npu:"):
+        # 4E/4F 审查修复：🟠-4 —— 显式多卡序号（"cuda:N"/"npu:N"）此前走 else
+        # 分支静默回退 CPU 且无告警。现解析索引并校验范围：越界/解析失败时告警回退 CPU。
+        # 4E 定向复查（δ）：npu 越界同样校验（旧版只校验 cuda，NPU 机器上
+        # 越界 npu 索引仍静默返回）
+        try:
+            dev = torch.device(resolved)
+            idx = dev.index or 0
+            if dev.type == "cuda" and idx >= torch.cuda.device_count():
+                logger.warning(
+                    f"{resolved} 超出可见 GPU 数({torch.cuda.device_count()})，回退 CPU")
+                return torch.device("cpu")
+            if dev.type == "npu":
+                try:
+                    npu_count = torch.npu.device_count()
+                    if idx >= npu_count:
+                        logger.warning(
+                            f"{resolved} 超出可见 NPU 数({npu_count})，回退 CPU")
+                        return torch.device("cpu")
+                except (AttributeError, RuntimeError):
+                    logger.warning(f"{resolved} 无法查询 NPU 数量，回退 CPU")
+                    return torch.device("cpu")
+            return dev
+        except (RuntimeError, ValueError) as e:
+            logger.warning(f"无法解析设备 '{resolved}'（{e}），回退 CPU")
+            return torch.device("cpu")
     else:
         return torch.device("cpu")
 
@@ -131,10 +177,17 @@ def _init_amp():
         pass
 
     # 回退到 CUDA AMP / Fall back to CUDA AMP
+    # 第三轮审查 3C-AMP-1：GradScaler 优先 torch.amp（无 FutureWarning）；
+    # autocast 保持 torch.cuda.amp（torch.amp.autocast 需 device_type 位置参数，
+    # 与现有 enabled= 调用不兼容）
     try:
+        from torch.amp import GradScaler as _TAGradScaler
+        GradScaler = _TAGradScaler
+    except (ImportError, AttributeError):
         from torch.cuda.amp import GradScaler as CUDAGradScaler
-        from torch.cuda.amp import autocast as CUDAAutocast
         GradScaler = CUDAGradScaler
+    try:
+        from torch.cuda.amp import autocast as CUDAAutocast
         autocast = CUDAAutocast
         logger.debug("AMP: 使用 CUDA 后端")
         return

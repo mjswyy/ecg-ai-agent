@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ⚠️ DEPRECATED（2026-08-24，检查报告第六步）: 华为云 ModelArts NPU 训练入口（云端历史环境专用，本机无 NPU）
 """
 ModelArts Training Entry Point — ECG Backbone Model Training on Ascend NPU.
 
@@ -147,16 +148,17 @@ def install_dependencies(project_root: Path):
     """Install training dependencies. NumPy must be downgraded first."""
     req_path = project_root / "requirements.txt"
 
-    # NumPy must be downgraded before any torch import
+    # 2B 🟡-11 修复：安装失败显式报错（旧版 check=False 静默失败，
+    # 训练在错误依赖上继续运行）
     subprocess.run(
         [sys.executable, "-m", "pip", "install", "numpy<2", "--quiet"],
-        check=False,
+        check=True,
     )
 
     # Install from requirements.txt (absolute path)
     subprocess.run(
         [sys.executable, "-m", "pip", "install", "-r", str(req_path), "--quiet"],
-        check=False,
+        check=True,
     )
 
 

@@ -1,3 +1,4 @@
+# ⚠️ DEPRECATED（2026-08-24，检查报告第六步）: 旧 Agent 评估；现役五维评测 = eval_agent_llm.py
 """Agent End-to-End Evaluation — 100 条 ECG 完整推理链评估."""
 import sys
 from pathlib import Path
@@ -27,11 +28,12 @@ device = torch.device("cpu")
 
 print("Loading models...")
 checkpoints = Path("checkpoints")
+from src.utils.safe_load import safe_torch_load
 
 def load_one(bb_fn, ckpt_path, dropout=0.3):
     bb = bb_fn(in_channels=12, dropout=dropout)
     m = ArrhythmiaClassifier(bb, num_classes=27)
-    sd = torch.load(str(ckpt_path), map_location="cpu", weights_only=False)
+    sd = safe_torch_load(str(ckpt_path), map_location="cpu")
     m.load_state_dict(sd["model_state_dict"])
     m.eval()
     return m
@@ -68,7 +70,10 @@ class ECGAgentEvaluator:
             hr = r_result.get("heart_rate", None)
             rhythm = r_result.get("rhythm", "unknown")
             steps.append({"tool": "extract_r_peaks", "ok": True,
-                          "result": f"HR={hr:.0f}bpm, rhythm={rhythm}" if hr else "peaks detected"})
+                          # R3（2D-R1）：测量失败显式化，不再显示误导性的 "peaks detected"
+                          "result": (f"HR={hr:.0f}bpm, rhythm={rhythm}"
+                                     if hr and rhythm != "insufficient_data"
+                                     else "测量失败（R 峰不足）")})
         except Exception as e:
             steps.append({"tool": "extract_r_peaks", "ok": False, "error": str(e)})
             errors.append("r_peaks_failed")

@@ -1,0 +1,47 @@
+# 知识库来源注册表（可信度分级）
+# 等级定义:
+#   A = 权威指南/学会正式文件
+#   B = 同行评审论文（PubMed 摘要）
+#   C = 大学/医院/专业教育资源（如 ECGpedia、LITFL、Utah ECG Center）
+#   D = 一般医学媒体（默认不采集）
+# 所有来源仅限公开内容；提炼后的知识条目必须保留来源+等级。
+
+sources:
+  pubmed_review:
+    kind: pubmed
+    grade: B
+    queries:
+      - "{name} electrocardiogram review"
+      - "{name} ECG criteria diagnosis"
+    retmax: 6
+    sort: relevance
+    note: "NCBI E-utilities 官方 API，取摘要（公开）"
+
+  ecgpedia:
+    kind: mediawiki
+    grade: C
+    api: "https://en.ecgpedia.org/api.php"
+    page_template: "{name_underscore}"
+    note: "ECGpedia（CC BY-NC-SA 许可的医学 wiki）"
+
+  litfl:
+    kind: html
+    grade: C
+    enabled: true    # R4：用户提供代理后启用；页名映射见 crawl_knowledge.py LITFL_SLUGS
+    url_template: "https://litfl.com"
+    note: "LITFL ECG Library（急诊医学教育资源；多数页带 -ecg-library 后缀，爬虫双候选尝试）"
+
+  utah:
+    kind: html
+    grade: C
+    enabled: false   # 弃用：① 按课程主题分页（lesson/1-12），非按诊断，类目映射粗粒度；
+                     # ② 首页标注 CC BY-ND-NC 1.0（禁止演绎+非商业），LLM 提炼正文属演绎，不合规
+    url_template: "https://ecg.utah.edu/lesson/{n}"
+    note: "Utah ECG Learning Center——因许可证（BY-ND-NC）与结构不适配，仅保留注册信息不采集"
+
+general_topics:
+  - "ECG interpretation systematic approach"
+  - "normal ECG values intervals"
+  - "ECG axis determination"
+  - "QT interval measurement correction"
+  - "electrocardiogram leads placement"

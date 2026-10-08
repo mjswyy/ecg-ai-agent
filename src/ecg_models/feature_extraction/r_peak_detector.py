@@ -66,23 +66,54 @@ class RPeakDetector:
         # 使用 neurokit2 进行鲁棒检测
         try:
             import neurokit2 as nk
+            # neurokit2 0.2.x 改名: pan_tompkins → pantompkins（0.1.x 旧名）
+            nk_method = "pantompkins" if self.method == "pan_tompkins" else self.method
             if self.method == "neurokit":
                 _, info = nk.ecg_process(signal, sampling_rate=int(fs))
             else:
-                _, info = nk.ecg_process(signal, sampling_rate=int(fs), method=self.method)
+                _, info = nk.ecg_process(signal, sampling_rate=int(fs), method=nk_method)
             r_peaks = info["ECG_R_Peaks"]
-        except ImportError:
-            logger.warning("neurokit2 未安装；使用简单阈值法检测")
+        except (ImportError, ValueError, KeyError, ZeroDivisionError,
+                RuntimeError, IndexError) as e:
+            logger.warning(f"neurokit2 检测失败({e})；使用简单阈值法回退")
             r_peaks = self._simple_peak_detect(signal, fs)
 
         # ---- 少于2个R峰时无法可靠计算心率和RR间期 ----
+        # R3 修复（第二次审查 2D-R1）：失败显式化——不再把"检不出心跳"伪装成
+        # 任何确定性节律；rhythm=insufficient_data + insufficient=True，
+        # 下游必须呈现"测量失败"而非"窦性心动过缓"。
         if len(r_peaks) < 2:
             return {
                 "r_peaks": r_peaks.tolist() if isinstance(r_peaks, np.ndarray) else r_peaks,
                 "r_peaks_ms": [], "rr_intervals": np.array([]),
                 "heart_rate": 0.0, "hr_std": 0.0,
+                "rhythm": "insufficient_data", "insufficient": True,
                 "num_beats": len(r_peaks), "method": self.method,
             }
+
+        # ---- 3F-YELLOW-3 修复：噪声/导联脱落守卫（覆盖神经kit 与简单回退两条路径）----
+        # Pan-Tompkins 对"导联脱落+环境噪声"会误检 20-30 个伪峰并报出
+        # "规律心动过速"（实测 154-190 bpm；伪峰幅度与噪声本底同量级，
+        # 绝对峰幅度阈值在噪声统计变化时不可靠）。
+        # 判据：QRS 频段（5-15Hz）带通后峰峰值 < 0.15 mV——真实 QRS 滤波后
+        # ≥0.15 mV（z-score 归一化输入 ~6-10 不触发；低电压真实记录见注释），
+        # 工频/肌电/漂移噪声被带通大幅衰减（实测 <0.05）。伪峰序列判 insufficient。
+        try:
+            from scipy import signal as scipy_signal
+            nyq = fs / 2.0
+            _b, _a = scipy_signal.butter(2, [5.0 / nyq, 15.0 / nyq], btype="band")
+            _banded = scipy_signal.filtfilt(_b, _a, signal)
+            if np.ptp(_banded) < 0.15:
+                logger.warning("QRS 频段能量过低（疑似导联脱落/纯噪声），判为 insufficient_data")
+                return {
+                    "r_peaks": r_peaks.tolist() if isinstance(r_peaks, np.ndarray) else r_peaks,
+                    "r_peaks_ms": [], "rr_intervals": np.array([]),
+                    "heart_rate": 0.0, "hr_std": 0.0,
+                    "rhythm": "insufficient_data", "insufficient": True,
+                    "num_beats": len(r_peaks), "method": self.method,
+                }
+        except Exception:
+            pass  # 守卫滤波失败不阻塞检测（沿用原行为）
 
         # ---- 计算 RR 间期 (ms) ----
         r_peaks_ms = (np.array(r_peaks) / fs) * 1000.0
@@ -92,6 +123,7 @@ class RPeakDetector:
         rr_valid = rr_intervals[(rr_intervals > 300) & (rr_intervals < 2000)]
 
         # 心率
+        insufficient = False
         if len(rr_valid) > 0:
             heart_rate = 60000.0 / np.mean(rr_valid)
             hr_std = np.std(60000.0 / rr_valid)
@@ -104,7 +136,9 @@ class RPeakDetector:
                 rhythm = "normal rate"
             rhythm += " (irregular)" if hr_std > 15 else " (regular)"
         else:
-            heart_rate, hr_std, rhythm = 0.0, 0.0, "unknown"
+            heart_rate, hr_std, rhythm = 0.0, 0.0, "insufficient_data"
+            insufficient = True
+            # R3 修复（2D-R1）：RR 间期全部生理过滤失败同样视为测量失败
 
         result = {
             "r_peaks": r_peaks.tolist() if isinstance(r_peaks, np.ndarray) else r_peaks,
@@ -113,6 +147,9 @@ class RPeakDetector:
             "heart_rate": round(float(heart_rate), 1),
             "hr_std": round(float(hr_std), 1),
             "rhythm": rhythm,
+            # 第三轮审查 3C-RPEAK-1：所有路径显式携带 insufficient 标志
+            # （旧版此分支缺键，下游 get('insufficient', False) 把失败误判为成功）
+            "insufficient": insufficient,
             "num_beats": len(r_peaks),
             "method": self.method,
         }
@@ -169,12 +206,29 @@ class RPeakDetector:
         else:
             hr, hr_std = 0.0, 0.0
 
+        # R3 修复（2D-R1）：共识峰不足同样失败显式化
+        if len(consensus_list) < 2:
+            result = {
+                "r_peaks": consensus_list,
+                "r_peaks_ms": [],
+                "rr_intervals": np.array([]),
+                "heart_rate": 0.0, "hr_std": 0.0,
+                "rhythm": "insufficient_data", "insufficient": True,
+                "num_beats": len(consensus_list),
+                "method": f"{self.method}_multi_lead",
+                "lead_agreement": round(agreement, 3),
+            }
+            self.last_result = result
+            return result
+
         result = {
             "r_peaks": consensus_list,
             "r_peaks_ms": (np.array(consensus_list) / fs * 1000.0).tolist(),
             "rr_intervals": np.diff(np.array(consensus_list) / fs * 1000.0),
             "heart_rate": round(float(hr), 1),
             "hr_std": round(float(hr_std), 1),
+            "rhythm": "insufficient_data" if hr <= 0 else (
+                "bradycardia" if hr < 60 else "tachycardia" if hr > 100 else "normal rate"),
             "num_beats": len(consensus_list),
             "method": f"{self.method}_multi_lead",
             "lead_agreement": round(agreement, 3),
@@ -188,6 +242,15 @@ class RPeakDetector:
 
         使用自适应阈值（95 分位数）和 200ms 不应期。
         如果首次检测到的峰太少，降低阈值重试。
+
+        3F-YELLOW-3 修复：加滤波域峰峰值守卫——旧版自适应阈值在
+        "导联脱落+环境噪声"输入上退化为噪声本底（伪峰被当成 QRS），
+        实测误报 tachycardia 154-190 bpm。5-15Hz 带通后真实 QRS 峰峰值
+        ≥0.2 mV（低电压记录也 ≥0.15），工频/肌电/漂移噪声被大幅衰减
+        （峰峰值通常 <0.05 mV），故峰峰值 <0.15 mV 判为无峰。
+        注：z-score 归一化输入（std≈1）峰峰值 ~6-10，不触发此守卫；
+        该域噪声的幅度信息已被归一化抹除，属已知局限（生产数据均为
+        真实记录，坏文件上传场景由 web_demo 的预处理失败兜底）。
         """
         from scipy import signal as scipy_signal
 
@@ -198,6 +261,8 @@ class RPeakDetector:
             filtered = scipy_signal.filtfilt(b, a, signal)
         except Exception:
             filtered = signal
+        if np.ptp(filtered) < 0.15:
+            return np.array([], dtype=int)
 
         abs_signal = np.abs(filtered)
         threshold = 0.5 * np.percentile(abs_signal, 95)

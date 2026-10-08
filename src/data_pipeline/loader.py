@@ -12,6 +12,7 @@ ECG 数据加载器 — 读取 PhysioNet Challenge 2020 WFDB 格式文件。
     https://physionetchallenges.github.io/2020/
 """
 
+import collections
 import re
 import logging
 from pathlib import Path
@@ -19,6 +20,8 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import wfdb  # PhysioNet 官方 WFDB 库，自动处理差分解码
+
+from .metadata_parser import MetadataParser  # 4B 🟡-8：复用性别标准化
 
 logger = logging.getLogger(__name__)
 
@@ -63,10 +66,9 @@ class ECGSample:
     def duration(self) -> float:
         """信号时长（秒）。
 
-        安全处理 fs≤0 的损坏头文件，返回 0.0。
+        4B 审查修复：💡-2 移除 fs<=0 死检查——ECGSample.__init__ 已对 fs<=0
+        抛 ValueError，此处永不可达。
         """
-        if self.fs <= 0:
-            return 0.0
         return self.signal.shape[1] / self.fs
 
     @property
@@ -107,17 +109,13 @@ class ECGSample:
     def sex(self) -> str:
         """患者性别，标准化为 "Male"/"Female"/"Unknown"。
 
-        处理不同数据源的编码不一致：
-        - cpsc_2018: "Male"/"Female"
-        - ptb: "M"/"F"
-        - georgia: "NaN" → "Unknown"
+        4B 审查修复：🟡-8 复用 MetadataParser.parse_sex_str 统一性别编码，
+        消除与 metadata_parser.py 的双实现漂移。旧版只认 Male/M/Female/F，
+        数字 "0"/"1" 落入 Unknown；现 "0"→Female、"1"→Male（与 MetadataParser
+        一致），并兼容 "man"/"woman" 及大小写。
         """
-        raw = self.metadata.get("Sex", "Unknown").strip()
-        if raw in ("Male", "M", "male"):
-            return "Male"
-        elif raw in ("Female", "F", "female"):
-            return "Female"
-        return "Unknown"
+        raw = self.metadata.get("Sex", "Unknown")
+        return MetadataParser.parse_sex_str(raw)
 
     @property
     def dx_codes(self) -> List[str]:
@@ -172,6 +170,10 @@ class ECGLoader:
         self.raw_dir = Path(raw_dir)
         if not self.raw_dir.exists():
             raise FileNotFoundError(f"原始数据目录不存在: {self.raw_dir}")
+
+        # 2A 🟠 修复：失败原因统计（旧版 load_record 全异常吞掉返回 None，
+        # 调用方静默跳过，失败规模与原因不可见）
+        self.failures = collections.Counter()
 
         # 自动发现所有数据源子目录
         self.sources = self._discover_sources()
@@ -228,8 +230,15 @@ class ECGLoader:
 
             # 再作为裸记录名在整个 raw_dir 下搜索
             record_name = ref_path.name
-            for hea_file in self.raw_dir.rglob(f"{record_name}.hea"):
-                return hea_file, record_name
+            candidates = [f for f in self.raw_dir.rglob(f"{record_name}.hea")]
+            if not candidates:
+                raise FileNotFoundError(f"找不到记录: {record_ref}")
+            if len(candidates) > 1:
+                # 第三轮审查 3B-DP-Y3：跨子目录同名记录显式告警
+                # （旧版静默取第一个，可能取错源）
+                logger.warning(f"记录名 '{record_name}' 命中多个文件 {candidates}，"
+                               f"取第一个：{candidates[0]}；建议使用相对路径消除歧义")
+            return candidates[0], record_name
 
         raise FileNotFoundError(f"找不到记录: {record_ref}")
 
@@ -259,6 +268,10 @@ class ECGLoader:
 
             # 验证：必须12导联，至少100个采样点
             if validate and (signal.shape[0] != 12 or signal.shape[1] < 100):
+                # 4B 审查修复：🟡-7 形状校验失败同样计入 failures 统计
+                # （旧版仅 warning 后 return None，不经过 except 路径，
+                # failure_summary() 看不到被校验跳过的规模与原因）。
+                self.failures["validation_skip"] += 1
                 logger.warning(f"跳过 {record_name}: 信号形状异常 {signal.shape}")
                 return None
 
@@ -268,18 +281,27 @@ class ECGLoader:
             # 从文件路径推断数据来源
             source = self._infer_source(hea_path)
 
+            # 携带真实导联名（用于下游导联顺序校验/重排，向后兼容）
+            actual_leads = list(record.sig_name) if record.sig_name else None
+
             return ECGSample(
                 record_id=record_name,
                 signal=signal,
                 fs=record.fs,
                 metadata=metadata,
                 source=source,
-                lead_names=list(self.STANDARD_LEADS),
+                lead_names=actual_leads or list(self.STANDARD_LEADS),
             )
 
         except Exception as e:
+            # 2A 🟠 修复：失败原因统计（旧版仅 logger.error，失败规模不可见）
+            self.failures[type(e).__name__] += 1
             logger.error(f"加载记录失败 {record_ref}: {e}")
             return None
+
+    def failure_summary(self) -> Dict[str, int]:
+        """返回加载失败原因统计（{异常类型: 次数}），供调用方汇总打印。"""
+        return dict(self.failures)
 
     def _parse_metadata(self, comments: List[str]) -> Dict[str, str]:
         """解析 WFDB 头文件中的注释行元数据。

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ⚠️ DEPRECATED（2026-08-24，检查报告第六步）: 4096 旧协议预处理；主用 preprocess_data_5k.py。本目录 processed/ 的 train/val/test manifest 仍是划分事实来源，保留勿删
 """Data Preprocessing Script - Convert raw PhysioNet 2020 data to processed .npy files.
 
 This script:
@@ -37,15 +38,31 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def _default_raw_dir():
+    """3F-Y5 修复：探测原始数据目录（旧版硬编码互不一致的绝对路径
+    Desktop\\ECG vs Desktop\\ecg资料，换机即失效）。探测失败返回 None，
+    由调用方要求显式传 --raw-dir。"""
+    repo = Path(__file__).parent.parent
+    stem = "classification-of-12-lead-ecgs-the-physionetcomputing-" \
+           "in-cardiology-challenge-2020-1.0.2"
+    candidates = [
+        repo.parent / stem / "training",
+        Path.home() / "Desktop" / "ecg资料" / stem / "training",
+        Path.home() / "Desktop" / "ECG" / stem / "training",
+    ]
+    for c in candidates:
+        if c.exists():
+            return str(c)
+    return None
+
+
 def main():
     parser = argparse.ArgumentParser(description="Preprocess PhysioNet 2020 ECG data")
     parser.add_argument(
         "--raw-dir",
         type=str,
-        default="c:/Users/llyun/Desktop/ecg资料/"
-                "classification-of-12-lead-ecgs-the-physionetcomputing-"
-                "in-cardiology-challenge-2020-1.0.2/training",
-        help="Path to raw training data directory",
+        default=_default_raw_dir(),
+        help="Path to raw training data directory（不传时自动探测；探测失败必须显式指定）",
     )
     parser.add_argument(
         "--output-dir",
@@ -71,6 +88,8 @@ def main():
     )
     args = parser.parse_args()
 
+    if not args.raw_dir:
+        sys.exit("未探测到原始数据目录——请用 --raw-dir 显式指定（3F-Y5）")
     raw_dir = Path(args.raw_dir)
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -153,8 +172,20 @@ def main():
         source_records = [m for m in manifest if m["source"] == source]
         indices = rng.permutation(len(source_records))
         n = len(source_records)
-        n_train = int(n * train_ratio)
-        n_val = int(n * val_ratio)
+        if n >= 3:
+            # 3F-💡-3：小源 floor 保护（train 优先、val 至少 1、test 让渡兜底）
+            n_train = max(int(n * train_ratio), 1)
+            n_val = max(int(n * val_ratio), 1)
+            n_test = n - n_train - n_val
+            if n_test < 1 and n_val > 1:
+                n_val -= min(n_val - 1, 1 - n_test)
+                n_test = n - n_train - n_val
+            if n_test < 1 and n_train > 1:
+                n_train -= 1
+                n_test = 1
+        else:
+            # 极端小源（n<3）：全进训练集，避免负计数
+            n_train, n_val, n_test = n, 0, 0
 
         train_files.extend([source_records[i] for i in indices[:n_train]])
         val_files.extend([source_records[i] for i in indices[n_train:n_train + n_val]])

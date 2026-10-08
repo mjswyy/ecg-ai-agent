@@ -1,3 +1,4 @@
+# ⚠️ DEPRECATED（2026-08-24，检查报告第六步）: 旧集成评估脚本
 """Model Ensemble Evaluation — average probabilities from multiple backbones."""
 import argparse
 import sys
@@ -40,9 +41,10 @@ def main():
 
     models = []
     for m in members:
+        from src.utils.safe_load import safe_torch_load
         backbone = m["backbone_fn"](in_channels=12, dropout=m["dropout"])
         model = ArrhythmiaClassifier(backbone, num_classes=27)
-        ckpt = torch.load(m["checkpoint"], map_location=args.device)
+        ckpt = safe_torch_load(m["checkpoint"], map_location=args.device)
         model.load_state_dict(ckpt["model_state_dict"])
         model.to(args.device)
         model.eval()
@@ -55,22 +57,23 @@ def main():
     dm.setup()
     loader = dm.test_dataloader()
 
-    all_probs, all_labels = [], []
-    with torch.no_grad():
-        for signals, labels in loader:
-            signals = signals.to(args.device)
-            # Average probabilities from all models
-            probs_list = []
-            for model in models:
-                logits = model(signals)
-                probs = torch.sigmoid(logits).cpu().numpy()
-                probs_list.append(probs)
-            avg_probs = np.mean(probs_list, axis=0)
-            all_probs.append(avg_probs)
-            all_labels.append(labels.numpy())
+    def collect(loader_):
+        ps, ys = [], []
+        with torch.no_grad():
+            for signals, labels in loader_:
+                signals = signals.to(args.device)
+                probs_list = []
+                for model in models:
+                    logits = model(signals)
+                    probs_list.append(torch.sigmoid(logits).cpu().numpy())
+                ps.append(np.mean(probs_list, axis=0))
+                ys.append(labels.numpy())
+        return np.concatenate(ps, axis=0), np.concatenate(ys, axis=0)
 
-    probs = np.concatenate(all_probs, axis=0)
-    labels = np.concatenate(all_labels, axis=0)
+    probs, labels = collect(loader)
+
+    # 2B 🔴-3 修复：最优阈值必须在验证集上确定（旧版在测试集 argmax-F1 → F1 乐观高估）
+    val_probs, val_labels = collect(dm.val_dataloader())
     num_classes = labels.shape[1]
 
     # Macro AUC
@@ -80,13 +83,15 @@ def main():
             aucs.append(roc_auc_score(labels[:, c], probs[:, c]))
     macro_auc = float(np.mean(aucs)) if aucs else 0.0
 
-    # Macro F1 (optimal threshold per class)
+    # Macro F1（阈值由验证集确定）
     from sklearn.metrics import precision_recall_curve
     f1s = []
     for c in range(num_classes):
         if labels[:, c].sum() == 0:
             continue
-        prec, rec, thresh = precision_recall_curve(labels[:, c], probs[:, c])
+        if val_labels[:, c].sum() == 0:
+            continue
+        prec, rec, thresh = precision_recall_curve(val_labels[:, c], val_probs[:, c])
         f1_curve = 2 * prec[:-1] * rec[:-1] / (prec[:-1] + rec[:-1] + 1e-8)
         best_idx = int(np.argmax(f1_curve))
         best_thresh = float(thresh[best_idx]) if len(thresh) > best_idx else 0.5

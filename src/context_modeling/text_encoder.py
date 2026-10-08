@@ -42,6 +42,10 @@ class TextEncoder(nn.Module):
             model_name = self.PRETRAINED_MODELS[model_name]
 
         self.model_name, self.max_length, self.pooling = model_name, max_length, pooling
+        # 4E/4F 审查修复：🟡-5（注释-only，不改逻辑）—— 占位路径硬编码 768 且
+        # 占位张量无 device。现役链路（extract_text_embeddings.py / 公平版脚本）
+        # 均加载真实 transformers 且用 mean 池化，占位路径仅 transformers 缺失
+        # 时触发；本缺陷不影响现役链路，故仅记录不修复。
         self._output_dim = 768  # BERT-base 默认维度
 
         # 尝试加载模型和分词器 / Try loading model + tokenizer
@@ -85,6 +89,9 @@ class TextEncoder(nn.Module):
             outputs = self.encoder(**inputs)
 
         # 池化 / Pooling
+        # 4E/4F 审查修复：🟡-6（注释-only，不改逻辑）—— max 池化用 0 掩 padding，
+        # 全负 hidden 时会被 padding 的 0 污染；现役链路只用 mean，max 路径未使用，
+        # 故仅记录不修复（若恢复请改用 masked_fill(-1e9) 再取 max）。
         if self.pooling == "cls":    pooled = outputs.last_hidden_state[:, 0, :]
         elif self.pooling == "mean": pooled = (outputs.last_hidden_state * inputs["attention_mask"].unsqueeze(-1).float()).sum(1) / inputs["attention_mask"].unsqueeze(-1).float().sum(1)
         elif self.pooling == "max":  pooled = (outputs.last_hidden_state * inputs["attention_mask"].unsqueeze(-1).float()).max(1).values

@@ -1,6 +1,13 @@
 """
 ECG 信号预处理器 — 完整的信号处理管道。
 
+⚠️ 5B 审查（🟠-1）：本模块为【历史 4096 协议】实现（旧自训模型/NPU 时代），
+与 ECGFounder 官方 5000 协议存在六处偏离（带通 [0.5,45] vs [0.67,40]、
+缺 0.4s 中值去基线、滤波顺序不同、4096 vs 5000 样本、逐导联 z-score vs
+全导联合并、多 5σ 裁剪且无导联重排）。权威预处理为
+scripts/preprocess_data_5k.py（processed_5k 全链路唯一事实源）；
+本模块仅被历史训练脚本（preprocess_data.py → processed/）使用，勿用于新实验。
+
 处理流程（6步）:
     1. 带通滤波 (0.5-45 Hz) — 去除基线漂移和高频噪声
     2. 陷波滤波 (50/60 Hz) — 去除工频干扰
@@ -58,6 +65,7 @@ class ECGPreprocessor:
         self._bp_sos = None      # 带通滤波器 SOS 系数
         self._notch_sos = None   # 陷波滤波器 SOS 系数
         self._design_fs = None   # 上次设计的采样率（用于缓存）
+        self._design_params = None  # 4B 💡-6：上次设计的滤波参数（用于缓存键）
 
     def _design_filters(self, fs: float) -> None:
         """设计 Butterworth 带通和陷波滤波器（SOS 形式，数值稳定）。
@@ -70,7 +78,14 @@ class ECGPreprocessor:
             - 带通上限超过 0.99×Nyquist → 抛出 ValueError
             - 陷波频率超过 0.99×Nyquist → 自动跳过
         """
-        if self._design_fs == fs and self._bp_sos is not None:
+        # 4B 审查修复：💡-6 缓存键纳入全部滤波参数——旧版仅比 fs，若同 fs 下
+        # 中途改 bandpass_low/high/notch_freq/filter_order 会复用旧滤波器。
+        design_params = (
+            self.bandpass_low, self.bandpass_high,
+            self.notch_freq, self.filter_order,
+        )
+        if (self._design_fs == fs and self._design_params == design_params
+                and self._bp_sos is not None):
             return  # 滤波器已设计，复用缓存
 
         nyquist = fs / 2.0  # 奈奎斯特频率
@@ -109,6 +124,7 @@ class ECGPreprocessor:
             self._notch_sos = signal.tf2sos(b, a)
 
         self._design_fs = fs
+        self._design_params = design_params
 
     def __call__(
         self,
@@ -212,24 +228,23 @@ class ECGPreprocessor:
 
         # 计算重采样比例并约简
         from math import gcd
-        up = int(target_fs)
-        down = int(orig_fs)
+        # 4B 审查修复：💡-4 用 round 而非 int() 截断——对带小数的采样率，
+        # int() 会向下截断造成精度损失（PhysioNet 六源均为整数率，故低危）。
+        up = round(target_fs)
+        down = round(orig_fs)
         g = gcd(up, down)
         up //= g
         down //= g
-
-        # 限制 up/down 因子上限防止内存溢出
-        max_factor = 100
-        while up > max_factor or down > max_factor:
-            up = (up + 1) // 2
-            down = (down + 1) // 2
 
         # 计算目标长度
         target_len = round(orig_len * target_fs / orig_fs)
         resampled = np.zeros((ecg.shape[0], target_len), dtype=np.float32)
 
         for i in range(ecg.shape[0]):
-            # resample_poly 保真度高但速度较慢
+            # 检查报告 1.6 修复：旧版"防爆内存"循环把 up/down 反复折半，
+            # 对 257Hz 等含大素因子的采样率静默改变真实比率（信号时间压缩）。
+            # scipy≥1.14 的 upfirdn 已统一为 polyphase 实现（内存 O(L)），
+            # 大因子不再需要钳制——直接用真实比率 resample_poly。
             out = signal.resample_poly(
                 ecg[i].astype(np.float64), up, down
             ).astype(np.float32)
@@ -306,6 +321,10 @@ class ECGPreprocessor:
         signal_start = pad_left
         signal_end = L - pad_right if pad_right > 0 else L
 
+        # 4B 审查修复：💡-5 说明——归一化把 (lead-mean)/std 应用于整条导联
+        # （含零填充区），使填充区变为非零常量 (-mean/std)。此为历史 4096 版
+        # 遗留行为；现役 5000 版已修复（official_zscore 在归一化后将填充区
+        # 显式置零）。本实现保留现状不改，避免破坏历史模型复现。
         normalized = np.zeros_like(ecg)
         means, stds = [], []
 

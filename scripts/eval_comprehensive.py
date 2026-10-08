@@ -1,4 +1,6 @@
+# ⚠️ DEPRECATED（2026-08-24，检查报告第六步）: 旧综合评估；其产物 comprehensive_eval.json 仍是成绩单历史数字（0.791/0.808/0.822）的来源，保留文件与产物
 """Comprehensive Model Evaluation — Bootstrap CI + Youden Thresholds + Top-K + McNemar."""
+from src.utils.safe_load import safe_torch_load
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -20,7 +22,7 @@ from src.ecg_models.classifiers.arrhythmia_classifier import ArrhythmiaClassifie
 def load_model(backbone_fn, checkpoint, device, dropout=0.3):
     bb = backbone_fn(in_channels=12, dropout=dropout)
     model = ArrhythmiaClassifier(bb, num_classes=27)
-    ckpt = torch.load(checkpoint, map_location=device, weights_only=False)
+    ckpt = safe_torch_load(checkpoint, map_location=device)
     model.load_state_dict(ckpt["model_state_dict"])
     model.to(device)
     model.eval()
@@ -28,10 +30,14 @@ def load_model(backbone_fn, checkpoint, device, dropout=0.3):
 
 
 def bootstrap_auc_ci(labels, probs, n_bootstrap=1000, alpha=0.05):
-    """Bootstrap 95% confidence interval for macro AUC."""
+    """Bootstrap 95% confidence interval for macro AUC.
+
+    2B 🟠-4 修复：固定种子（RandomState(42)），CI 可复现。
+    """
+    rng = np.random.RandomState(42)
     scores = []
     for _ in range(n_bootstrap):
-        idx = np.random.choice(len(labels), len(labels), replace=True)
+        idx = rng.choice(len(labels), len(labels), replace=True)
         scores.append(macro_auc(labels[idx], probs[idx]))
     lo = np.percentile(scores, 100 * alpha / 2)
     hi = np.percentile(scores, 100 * (1 - alpha / 2))
@@ -123,6 +129,24 @@ dm = ECGDataModule(data_dir, batch_size=128, num_workers=0, label_extractor=labe
 dm.setup()
 loader = dm.test_dataloader()
 
+# 2B 🔴-2 修复：阈值必须在验证集上确定（旧版在测试集现算 Youden → F1 乐观高估）
+val_loader = dm.val_dataloader()
+
+def collect_probs(model, loader):
+    ps, ys = [], []
+    with torch.no_grad():
+        for signals, labels in loader:
+            signals = signals.to(device)
+            logits = model(signals)
+            ps.append(torch.sigmoid(logits).cpu().numpy())
+            ys.append(labels.numpy())
+    return np.concatenate(ys, axis=0), np.concatenate(ps, axis=0)
+
+val_probs_all, val_labels_all = {}, {}
+for name, model in models.items():
+    yl, pl = collect_probs(model, val_loader)
+    val_labels_all[name], val_probs_all[name] = yl, pl
+
 # Collect predictions
 labels_test = []
 all_probs = {name: [] for name in models}
@@ -145,6 +169,8 @@ if len(models) >= 2:
     ensemble_probs = np.mean(list(all_probs.values()), axis=0)
     models["集成 Ensemble"] = None
     all_probs["集成 Ensemble"] = ensemble_probs
+    # 集成在验证集上的概率（用于验证集定阈值）
+    val_probs_all["集成 Ensemble"] = np.mean(list(val_probs_all.values()), axis=0)
 
 # ============================================================
 # Full Comparison Table
@@ -161,8 +187,8 @@ for name, probs in all_probs.items():
     # Macro AUC + Bootstrap CI
     auc_mean, auc_lo, auc_hi = bootstrap_auc_ci(labels_test, probs)
 
-    # Youden optimal thresholds
-    thresholds = youden_thresholds(labels_test, probs)
+    # 2B 🔴-2 修复：Youden 最优阈值在验证集上确定，测试集只评估
+    thresholds = youden_thresholds(val_labels_all[name], val_probs_all[name])
 
     # Macro F1 with optimal thresholds
     f1_opt = macro_f1_optimal(labels_test, probs, thresholds)

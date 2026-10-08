@@ -101,7 +101,9 @@ class AsymmetricLoss(nn.Module):
         pt_pos, pt_neg = p, 1 - p
         if self.gamma_pos > 0:
             loss_pos = loss_pos * ((1 - pt_pos) ** self.gamma_pos)
-        neg_weights = pt_neg ** self.gamma_neg
+        # 检查报告 1.9 修复：ASL 负类聚焦应为 (max(p-m,0))^γ（概率偏移），
+        # 旧版 (1-p)^γ 方向相反——把"被错误判正的难负样本"弱化而非强化
+        neg_weights = torch.clamp(pt_pos - self.clip, min=0.0) ** self.gamma_neg
 
         loss = loss_pos + neg_weights * loss_neg
         return loss.mean() if self.reduction == "mean" else loss.sum()

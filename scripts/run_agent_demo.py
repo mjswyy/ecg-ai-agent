@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# ⚠️ DEPRECATED（2026-08-24，检查报告第六步）: 旧 CLI Agent 演示（核心 agent 路径）；主演示已迁移 web_demo/app.py
+# 4A/4J 审查修复：💡-11 本脚本构造 ArrhythmiaClassifier 后从未 load_state_dict
+# （随机权重，仅供流程演示，诊断结果无医学意义），请改走 web_demo/app.py。
 """ECG AI Agent Demo — Interactive diagnostic session.
 
 Usage:
@@ -31,7 +34,7 @@ def main():
     parser.add_argument("--mock", action="store_true", help="Use mock LLM (no API key needed)")
     parser.add_argument("--interactive", action="store_true", help="Interactive multi-turn mode")
     parser.add_argument("--backend", default="deepseek", help="LLM backend")
-    parser.add_argument("--model", default="deepseek-v4-pro", help="LLM model")
+    parser.add_argument("--model", default="deepseek-chat", help="LLM model")
     args = parser.parse_args()
 
     # 1. Setup LLM
@@ -39,8 +42,7 @@ def main():
 
     if args.mock:
         logger.info("Mock mode: using placeholder LLM responses")
-        llm = LLMInterface(backend="deepseek", model="mock")
-        llm._client = None  # Force mock mode
+        llm = LLMInterface(backend="deepseek", model="mock", mock=True)
     else:
         llm = LLMInterface(backend=args.backend, model=args.model)
 
@@ -121,8 +123,9 @@ def format_result(result) -> str:
 
     lines.append("\nReasoning Chain:")
     for step in result.reasoning_chain:
-        status = "OK" if not step["error"] else f"ERR: {step['error']}"
-        lines.append(f"  [{status}] {step['step']}: {step['reason']}")
+        # 2D-O1 修复：AgentStep 是 dataclass，属性访问（旧版下标访问必崩）
+        status = "OK" if not step.error else f"ERR: {step.error}"
+        lines.append(f"  [{status}] {step.action}: {step.reason}")
 
     lines.append("\nRecommendations:")
     for r in result.recommendations:

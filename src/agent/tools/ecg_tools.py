@@ -34,6 +34,13 @@ def extract_r_peaks(ecg_signal=None, fs: float = 500.0, lead: int = 1, **kwargs)
     detector = RPeakDetector(method="pan_tompkins")
     result = detector.detect(ecg_signal, fs, lead=lead)
 
+    # R3 修复（第二次审查 2D-R1）：测量失败（R 峰不足/心率 0）时禁止合成
+    # 确定性节律——旧版 hr=0 会被覆盖成 "bradycardia (regular)" 误导"节律"结论。
+    if result.get("insufficient") or not result.get("heart_rate"):
+        result["rhythm"] = "insufficient_data"
+        result["insufficient"] = True
+        return result
+
     # 基础节律分类
     hr = result.get("heart_rate", 0)
     hr_std = result.get("hr_std", 0)
@@ -105,6 +112,9 @@ def measure_qt_interval(ecg_signal=None, r_peaks=None, fs: float = 500.0, sex: s
 
 def register_ecg_tools(registry: "ToolRegistry"):
     """向工具注册表中注册所有 ECG 分析工具。"""
+    # 4A/4J 审查修复：💡-2 本注册清单为运行时实际可被 Agent 调用的 ECG 工具
+    # 全集，与默认回退计划/mock 计划/few-shot 示例刻意独立（各自用途不同，
+    # 不强行单一事实源）。
     registry.register(
         "extract_r_peaks", extract_r_peaks,
         description="检测 ECG 信号中的 R 峰位置。返回心率、RR间期和节律分类。",

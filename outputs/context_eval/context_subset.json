@@ -1,0 +1,2948 @@
+{
+ "items": [
+  {
+   "record_id": "E06076",
+   "source": "georgia",
+   "signal_file": "georgia_E06076.npy",
+   "dx_codes": [
+    "59118001",
+    "164889003"
+   ],
+   "dx_names": [
+    "Atrial Fibrillation",
+    "Right Bundle Branch Block"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 75.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "HR13228",
+   "source": "ptb-xl",
+   "signal_file": "ptb-xl_HR13228.npy",
+   "dx_codes": [
+    "164865005",
+    "270492004",
+    "39732003",
+    "426783006",
+    "445118002",
+    "713427006"
+   ],
+   "dx_names": [
+    "Complete Right Bundle Branch Block",
+    "First Degree AV Block",
+    "Left Anterior Fascicular Block",
+    "Left Axis Deviation",
+    "Sinus Rhythm"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "age": 76.0,
+   "sex": "Female",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": "sinusrhythmus ueberdrehter linkstyp linksanteriorer hemiblock rechtsschenkelblock av-block 1.grades pathologisch"
+  },
+  {
+   "record_id": "A4681",
+   "source": "cpsc_2018",
+   "signal_file": "cpsc_2018_A4681.npy",
+   "dx_codes": [
+    "284470004"
+   ],
+   "dx_names": [
+    "Premature Atrial Contraction"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 85.0,
+   "sex": "Female",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "E06670",
+   "source": "georgia",
+   "signal_file": "georgia_E06670.npy",
+   "dx_codes": [
+    "270492004",
+    "426177001",
+    "164873001"
+   ],
+   "dx_names": [
+    "First Degree AV Block",
+    "Sinus Bradycardia"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 53.0,
+   "sex": "Female",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "HR16982",
+   "source": "ptb-xl",
+   "signal_file": "ptb-xl_HR16982.npy",
+   "dx_codes": [
+    "164865005",
+    "164951009",
+    "270492004",
+    "39732003",
+    "426783006",
+    "445118002",
+    "713427006"
+   ],
+   "dx_names": [
+    "Complete Right Bundle Branch Block",
+    "First Degree AV Block",
+    "Left Anterior Fascicular Block",
+    "Left Axis Deviation",
+    "Sinus Rhythm"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "age": 68.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": "sinusrhythmus ueberdrehter linkstyp linksanteriorer hemiblock rechtsschenkelblock bifaszikulÄrer block qrs(t) abnorm    anteroseptaler myokardschaden mÖglich 4.46                          unbestÄtigter bericht"
+  },
+  {
+   "record_id": "E05522",
+   "source": "georgia",
+   "signal_file": "georgia_E05522.npy",
+   "dx_codes": [
+    "698252002",
+    "164873001"
+   ],
+   "dx_names": [
+    "Nonspecific Intraventricular Conduction Disorder"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0
+   ],
+   "age": 64.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "HR02758",
+   "source": "ptb-xl",
+   "signal_file": "ptb-xl_HR02758.npy",
+   "dx_codes": [
+    "164889003",
+    "55930002"
+   ],
+   "dx_names": [
+    "Atrial Fibrillation"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 45.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": "atrial fibrillation. non specific t abnormality."
+  },
+  {
+   "record_id": "E09670",
+   "source": "georgia",
+   "signal_file": "georgia_E09670.npy",
+   "dx_codes": [
+    "164884008",
+    "427393009"
+   ],
+   "dx_names": [
+    "Sinus Arrhythmia"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 67.0,
+   "sex": "Female",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "HR11575",
+   "source": "ptb-xl",
+   "signal_file": "ptb-xl_HR11575.npy",
+   "dx_codes": [
+    "39732003",
+    "426783006"
+   ],
+   "dx_names": [
+    "Left Axis Deviation",
+    "Sinus Rhythm"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 42.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": "sinusrhythmus linkstyp sonst normales ekg"
+  },
+  {
+   "record_id": "HR17832",
+   "source": "ptb-xl",
+   "signal_file": "ptb-xl_HR17832.npy",
+   "dx_codes": [
+    "164934002",
+    "426783006"
+   ],
+   "dx_names": [
+    "Sinus Rhythm",
+    "T Wave Abnormal"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 45.0,
+   "sex": "Female",
+   "golden_tools": [
+    "classify_arrhythmia"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": "sinus rhythm. no definite pathology."
+  },
+  {
+   "record_id": "HR10165",
+   "source": "ptb-xl",
+   "signal_file": "ptb-xl_HR10165.npy",
+   "dx_codes": [
+    "164865005",
+    "164917005",
+    "426783006"
+   ],
+   "dx_names": [
+    "Q Wave Abnormal",
+    "Sinus Rhythm"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 41.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": "sinus rhythm. q waves in ii, iii, avf, old inferior myocardial infarction cannot be excluded. otherwise normal ecg."
+  },
+  {
+   "record_id": "HR08470",
+   "source": "ptb-xl",
+   "signal_file": "ptb-xl_HR08470.npy",
+   "dx_codes": [
+    "426783006"
+   ],
+   "dx_names": [
+    "Sinus Rhythm"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 74.0,
+   "sex": "Female",
+   "golden_tools": [
+    "classify_arrhythmia"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": "sinus rhythm. normal ecg."
+  },
+  {
+   "record_id": "HR14451",
+   "source": "ptb-xl",
+   "signal_file": "ptb-xl_HR14451.npy",
+   "dx_codes": [
+    "164865005",
+    "164889003",
+    "164951009",
+    "39732003",
+    "445118002",
+    "713427006"
+   ],
+   "dx_names": [
+    "Atrial Fibrillation",
+    "Complete Right Bundle Branch Block",
+    "Left Anterior Fascicular Block",
+    "Left Axis Deviation"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "age": 74.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": "ventrikulÄre extrasystole(n) vorhofflimmern/-flattern ueberdrehter linkstyp rechtsschenkelblock qrs(t) abnorm    anterolateraler infarkt mÖglich    inferiorer infarkt     mÖgl. akut 4.46                          unbestÄtigter bericht"
+  },
+  {
+   "record_id": "E07592",
+   "source": "georgia",
+   "signal_file": "georgia_E07592.npy",
+   "dx_codes": [
+    "713426002",
+    "428750005"
+   ],
+   "dx_names": [
+    "Incomplete Right Bundle Branch Block"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "age": 57.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "E09651",
+   "source": "georgia",
+   "signal_file": "georgia_E09651.npy",
+   "dx_codes": [
+    "111975006",
+    "164930006",
+    "426434006",
+    "164934002",
+    "164917005"
+   ],
+   "dx_names": [
+    "Prolonged QT Interval",
+    "Q Wave Abnormal",
+    "T Wave Abnormal"
+   ],
+   "labels": [
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 74.0,
+   "sex": "Female",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "measure_qt_interval"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "E09886",
+   "source": "georgia",
+   "signal_file": "georgia_E09886.npy",
+   "dx_codes": [
+    "713426002",
+    "164889003",
+    "111975006"
+   ],
+   "dx_names": [
+    "Atrial Fibrillation",
+    "Incomplete Right Bundle Branch Block",
+    "Prolonged QT Interval"
+   ],
+   "labels": [
+    0.0,
+    1.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "age": 50.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv",
+    "measure_qt_interval"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "HR04948",
+   "source": "ptb-xl",
+   "signal_file": "ptb-xl_HR04948.npy",
+   "dx_codes": [
+    "164947007",
+    "270492004",
+    "426783006",
+    "445211001",
+    "713427006"
+   ],
+   "dx_names": [
+    "Complete Right Bundle Branch Block",
+    "First Degree AV Block",
+    "Prolonged PR Interval",
+    "Sinus Rhythm"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "age": 75.0,
+   "sex": "Female",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": "sinus rhythm. prolonged pr interval. left anterior fascicular block. right bundle branch block. this patient has trifascicular block and may be at  increased risk of developing complete heart block."
+  },
+  {
+   "record_id": "E04025",
+   "source": "georgia",
+   "signal_file": "georgia_E04025.npy",
+   "dx_codes": [
+    "426177001"
+   ],
+   "dx_names": [
+    "Sinus Bradycardia"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 59.0,
+   "sex": "Female",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "HR05439",
+   "source": "ptb-xl",
+   "signal_file": "ptb-xl_HR05439.npy",
+   "dx_codes": [
+    "164873001",
+    "164909002",
+    "39732003",
+    "427084000"
+   ],
+   "dx_names": [
+    "Left Axis Deviation",
+    "Left Bundle Branch Block",
+    "Sinus Tachycardia"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 65.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": "sinustachykardie p-sinistrocardiale linkstyp linksschenkelblock linkshypertrophie mÖglich 4.46                          unbestÄtigter bericht"
+  },
+  {
+   "record_id": "Q0318",
+   "source": "cpsc_2018_extra",
+   "signal_file": "cpsc_2018_extra_Q0318.npy",
+   "dx_codes": [
+    "427172004",
+    "164867002",
+    "164861001",
+    "164889003"
+   ],
+   "dx_names": [
+    "Atrial Fibrillation",
+    "Premature Ventricular Contractions"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 65.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "HR13764",
+   "source": "ptb-xl",
+   "signal_file": "ptb-xl_HR13764.npy",
+   "dx_codes": [
+    "10370003"
+   ],
+   "dx_names": [
+    "Pacing Rhythm"
+   ],
+   "labels": [
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 60.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": "schrittmacher ekg 4.46                          unbestÄtigter bericht"
+  },
+  {
+   "record_id": "A0931",
+   "source": "cpsc_2018",
+   "signal_file": "cpsc_2018_A0931.npy",
+   "dx_codes": [
+    "164889003"
+   ],
+   "dx_names": [
+    "Atrial Fibrillation"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 71.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "HR19968",
+   "source": "ptb-xl",
+   "signal_file": "ptb-xl_HR19968.npy",
+   "dx_codes": [
+    "164865005",
+    "164951009",
+    "63593006"
+   ],
+   "dx_names": [
+    "Supraventricular Premature Beats"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 80.0,
+   "sex": "Female",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": "supraventrikulÄre arrhythmie a-v block i lagetyp normal qrs(t) abnorm    anteroseptaler infarkt     alter unbest. st & t abnorm, wahrscheinlich    anteriore ischÄmie oder linksbelastung    inferiore ischÄmie oder linksbelastung t abnorm in lateralen ablei"
+  },
+  {
+   "record_id": "E06853",
+   "source": "georgia",
+   "signal_file": "georgia_E06853.npy",
+   "dx_codes": [
+    "428750005",
+    "164934002",
+    "270492004",
+    "59931005"
+   ],
+   "dx_names": [
+    "First Degree AV Block",
+    "T Wave Abnormal",
+    "T Wave Inversion"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 68.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "A3289",
+   "source": "cpsc_2018",
+   "signal_file": "cpsc_2018_A3289.npy",
+   "dx_codes": [
+    "164889003"
+   ],
+   "dx_names": [
+    "Atrial Fibrillation"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 65.0,
+   "sex": "Female",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "HR13554",
+   "source": "ptb-xl",
+   "signal_file": "ptb-xl_HR13554.npy",
+   "dx_codes": [
+    "164934002",
+    "426783006"
+   ],
+   "dx_names": [
+    "Sinus Rhythm",
+    "T Wave Abnormal"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 71.0,
+   "sex": "Female",
+   "golden_tools": [
+    "classify_arrhythmia"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": "sinusrhythmus lagetyp normal unspezifisches abnormes t qt-verlÄngerung 4.46                          unbestÄtigter bericht"
+  },
+  {
+   "record_id": "E02923",
+   "source": "georgia",
+   "signal_file": "georgia_E02923.npy",
+   "dx_codes": [
+    "427084000",
+    "59931005",
+    "164934002",
+    "111975006"
+   ],
+   "dx_names": [
+    "Prolonged QT Interval",
+    "Sinus Tachycardia",
+    "T Wave Abnormal",
+    "T Wave Inversion"
+   ],
+   "labels": [
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 40.0,
+   "sex": "Female",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv",
+    "measure_qt_interval"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "HR04616",
+   "source": "ptb-xl",
+   "signal_file": "ptb-xl_HR04616.npy",
+   "dx_codes": [
+    "426783006"
+   ],
+   "dx_names": [
+    "Sinus Rhythm"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 41.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": "sinus rhythm. normal ecg."
+  },
+  {
+   "record_id": "E04881",
+   "source": "georgia",
+   "signal_file": "georgia_E04881.npy",
+   "dx_codes": [
+    "713426002",
+    "428750005",
+    "67741000119109",
+    "164934002",
+    "426434006",
+    "59931005"
+   ],
+   "dx_names": [
+    "Incomplete Right Bundle Branch Block",
+    "T Wave Abnormal",
+    "T Wave Inversion"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "age": 59.0,
+   "sex": "Female",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "A1236",
+   "source": "cpsc_2018",
+   "signal_file": "cpsc_2018_A1236.npy",
+   "dx_codes": [
+    "59118001",
+    "284470004",
+    "164931005"
+   ],
+   "dx_names": [
+    "Premature Atrial Contraction",
+    "Right Bundle Branch Block"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 61.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "HR01356",
+   "source": "ptb-xl",
+   "signal_file": "ptb-xl_HR01356.npy",
+   "dx_codes": [
+    "164947007",
+    "426783006"
+   ],
+   "dx_names": [
+    "Prolonged PR Interval",
+    "Sinus Rhythm"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 74.0,
+   "sex": "Female",
+   "golden_tools": [
+    "classify_arrhythmia"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": "sinus rhythm. prolonged pr interval. otherwise normal ecg."
+  },
+  {
+   "record_id": "A5360",
+   "source": "cpsc_2018",
+   "signal_file": "cpsc_2018_A5360.npy",
+   "dx_codes": [
+    "270492004"
+   ],
+   "dx_names": [
+    "First Degree AV Block"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 68.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "E05078",
+   "source": "georgia",
+   "signal_file": "georgia_E05078.npy",
+   "dx_codes": [
+    "59931005",
+    "164934002",
+    "164890007",
+    "233917008",
+    "164873001"
+   ],
+   "dx_names": [
+    "Atrial Flutter",
+    "T Wave Abnormal",
+    "T Wave Inversion"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 62.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "E01806",
+   "source": "georgia",
+   "signal_file": "georgia_E01806.npy",
+   "dx_codes": [
+    "17338001",
+    "67741000119109",
+    "270492004",
+    "39732003",
+    "427084000",
+    "164873001"
+   ],
+   "dx_names": [
+    "First Degree AV Block",
+    "Left Axis Deviation",
+    "Sinus Tachycardia",
+    "Ventricular Premature Beats"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    1.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 69.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "A1008",
+   "source": "cpsc_2018",
+   "signal_file": "cpsc_2018_A1008.npy",
+   "dx_codes": [
+    "164889003"
+   ],
+   "dx_names": [
+    "Atrial Fibrillation"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 82.0,
+   "sex": "Female",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "HR13455",
+   "source": "ptb-xl",
+   "signal_file": "ptb-xl_HR13455.npy",
+   "dx_codes": [
+    "10370003"
+   ],
+   "dx_names": [
+    "Pacing Rhythm"
+   ],
+   "labels": [
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 66.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": "schrittmacher ekg 4.46                          unbestÄtigter bericht"
+  },
+  {
+   "record_id": "HR00271",
+   "source": "ptb-xl",
+   "signal_file": "ptb-xl_HR00271.npy",
+   "dx_codes": [
+    "164861001",
+    "164865005",
+    "164873001",
+    "284470004",
+    "426783006",
+    "429622005"
+   ],
+   "dx_names": [
+    "Premature Atrial Contraction",
+    "Sinus Rhythm"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 75.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": "premature atrial contraction(s). sinus rhythm. left atrial enlargement. qs complexes in v2 and tiny r waves in v3. st segments are depressed and t waves inverted in i,    avl, v5,6. consistent with ischaemic heart disease with old anteroseptal myocardial "
+  },
+  {
+   "record_id": "E01994",
+   "source": "georgia",
+   "signal_file": "georgia_E01994.npy",
+   "dx_codes": [
+    "428750005",
+    "59931005",
+    "111975006"
+   ],
+   "dx_names": [
+    "Prolonged QT Interval",
+    "T Wave Inversion"
+   ],
+   "labels": [
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 29.0,
+   "sex": "Female",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "measure_qt_interval"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  },
+  {
+   "record_id": "HR17724",
+   "source": "ptb-xl",
+   "signal_file": "ptb-xl_HR17724.npy",
+   "dx_codes": [
+    "164884008",
+    "164909002",
+    "164947007",
+    "270492004",
+    "284470004",
+    "39732003",
+    "426783006"
+   ],
+   "dx_names": [
+    "First Degree AV Block",
+    "Left Axis Deviation",
+    "Left Bundle Branch Block",
+    "Premature Atrial Contraction",
+    "Prolonged PR Interval",
+    "Sinus Rhythm"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    1.0,
+    1.0,
+    1.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 72.0,
+   "sex": "Male",
+   "golden_tools": [
+    "classify_arrhythmia",
+    "extract_r_peaks",
+    "compute_hrv"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": "premature ventricular contraction(s). premature atrial contraction(s). sinus rhythm. prolonged pr interval. left axis deviation. left bundle branch block, this is most commonly due to    ischaemic heart disease."
+  },
+  {
+   "record_id": "E06501",
+   "source": "georgia",
+   "signal_file": "georgia_E06501.npy",
+   "dx_codes": [
+    "39732003",
+    "164873001"
+   ],
+   "dx_names": [
+    "Left Axis Deviation"
+   ],
+   "labels": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "age": 72.0,
+   "sex": "Female",
+   "golden_tools": [
+    "classify_arrhythmia"
+   ],
+   "context_cards": [
+    {
+     "id": "ed_chest_pain",
+     "setting": "急诊科",
+     "chief_complaint": "胸痛 3 天，伴心悸",
+     "history": "高血压 10 年，吸烟 30 年",
+     "urgency": "高"
+    },
+    {
+     "id": "routine_checkup",
+     "setting": "体检中心",
+     "chief_complaint": "无症状，常规体检",
+     "history": "无特殊病史",
+     "urgency": "低"
+    },
+    {
+     "id": "af_followup",
+     "setting": "心内科门诊",
+     "chief_complaint": "房颤术后随访，偶感心慌",
+     "history": "房颤史 5 年，口服抗凝药",
+     "urgency": "中"
+    }
+   ],
+   "report_text": null
+  }
+ ],
+ "count": 40
+}

@@ -20,6 +20,9 @@ logger = logging.getLogger(__name__)
 # Few-shot 示例: 3个典型病例的诊断计划
 # ============================================================================
 
+# 4A/4J 审查修复：💡-2 本清单为规划器的 few-shot 教学示例（含 detect_anomaly
+# 等可选工具），与默认回退计划/mock 计划/工具注册清单刻意独立（用途不同：
+# 示例用于引导 LLM 生成合理计划，非运行时权威清单，不强行单一事实源）。
 FEW_SHOT_EXAMPLES = """
 示例诊断计划:
 
@@ -30,8 +33,7 @@ FEW_SHOT_EXAMPLES = """
     {"action": "compute_hrv", "reason": "胸痛需评估自主神经张力"},
     {"action": "classify_arrhythmia", "reason": "检测房颤或其他心律失常"},
     {"action": "measure_qt_interval", "reason": "排除QT间期延长"},
-    {"action": "detect_anomaly", "reason": "检查是否有异常ECG模式"},
-    {"action": "generate_report", "reason": "汇总所有发现为结构化诊断"}
+    {"action": "detect_anomaly", "reason": "检查是否有异常ECG模式"}
   ]
 }
 
@@ -39,8 +41,7 @@ FEW_SHOT_EXAMPLES = """
 {
   "plan": [
     {"action": "extract_r_peaks", "reason": "基础心率测量"},
-    {"action": "classify_arrhythmia", "reason": "筛查常见心律失常"},
-    {"action": "generate_report", "reason": "输出正常/简单发现"}
+    {"action": "classify_arrhythmia", "reason": "筛查常见心律失常"}
   ]
 }
 
@@ -50,9 +51,7 @@ FEW_SHOT_EXAMPLES = """
     {"action": "extract_r_peaks", "reason": "检查心室率控制情况"},
     {"action": "compute_hrv", "reason": "评估节律变异性"},
     {"action": "classify_arrhythmia", "reason": "确认房颤状态并检测新发心律失常"},
-    {"action": "measure_qt_interval", "reason": "监测药物引起的QT变化"},
-    {"action": "query_medical_knowledge", "reason": "查阅房颤管理指南"},
-    {"action": "generate_report", "reason": "与既往发现对比"}
+    {"action": "measure_qt_interval", "reason": "监测药物引起的QT变化"}
   ]
 }
 """

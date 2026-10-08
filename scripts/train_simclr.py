@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
+# ⚠️ DEPRECATED（2026-08-24，检查报告第六步）: 旧 NPU SimCLR 预训练（0.841 历史对照，见论文 §4.1 † 注记；代码已按检查报告 1.4/1.5 修复）
 """SimCLR Pretraining + Fine-tuning for ECG backbone.
 
-Phase 1: Self-supervised contrastive pretraining on all 43K ECGs (no labels)
+Phase 1: Self-supervised contrastive pretraining on train split only (~30K ECGs, no labels; 泄漏红线)
 Phase 2: Multi-label fine-tuning on 30K labeled ECGs
 Phase 3: Test evaluation
 
@@ -57,8 +58,16 @@ def main():
     parser.add_argument("--skip-pretrain", action="store_true")
     args = parser.parse_args()
 
+    # 检查报告 1.9 修复：补齐随机种子（torch/numpy/python），保证可复现
+    import random
+    import numpy as np
+    seed = 42
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+
     device = args.device
-    logger.info(f"Device: {device} | Backbone: {args.backbone}")
+    logger.info(f"Device: {device} | Backbone: {args.backbone} | seed={seed}")
 
     # Output dir
     out_dir = Path(args.output_dir)
@@ -72,7 +81,8 @@ def main():
     if not args.skip_pretrain:
         logger.info("=" * 60)
         logger.info("Phase 1: SimCLR Contrastive Pretraining")
-        logger.info(f"  43K unlabeled ECGs | {args.simclr_epochs} epochs | lr={args.simclr_lr}")
+        # 4E/4F 审查修复：🟡-6 —— 实际仅用 train 划分（约 30K，泄漏红线），修正日志
+        logger.info(f"  train-split unlabeled ECGs (~30K, 泄漏红线) | {args.simclr_epochs} epochs | lr={args.simclr_lr}")
         logger.info("=" * 60)
 
         # Build backbone (no classification head, pretrain backbone only)
@@ -126,8 +136,16 @@ def main():
     backbone_fn = BACKBONES[args.backbone]
     backbone = backbone_fn(in_channels=12, dropout=args.dropout)
     if pretrain_path.exists():
-        backbone.load_state_dict(torch.load(pretrain_path, map_location="cpu"))
+        # 3F-YELLOW-8 修复：与全仓 safe_torch_load 口径一致
+        # （旧版裸 torch.load 在 torch≥2.6 默认 weights_only=True 下行为不同）
+        from src.utils.safe_load import safe_torch_load
+        backbone.load_state_dict(safe_torch_load(pretrain_path, map_location="cpu"))
         logger.info(f"Loaded pretrained backbone from {pretrain_path}")
+    else:
+        # 第三轮审查 3F-R3-06：--skip-pretrain 但预训练权重缺失时必须显式失败
+        # （旧版静默以随机初始化继续微调，用户误以为加载了预训练权重）
+        logger.error(f"预训练权重不存在: {pretrain_path}（无法按 --skip-pretrain 继续）")
+        sys.exit(1)
 
     model = ArrhythmiaClassifier(backbone, num_classes=27)
     logger.info(f"Model: {sum(p.numel() for p in model.parameters()):,} parameters")
@@ -163,7 +181,8 @@ def main():
     logger.info("Phase 3: Test Evaluation")
     logger.info("=" * 60)
 
-    metrics = trainer.evaluate(dm.test_dataloader())
+    metrics = trainer.evaluate(dm.test_dataloader(),
+                               thresholds=trainer.val_thresholds)  # 2E-O7：验证集阈值
     for k, v in metrics.items():
         logger.info(f"  {k}: {v:.4f}")
 

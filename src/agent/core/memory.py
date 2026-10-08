@@ -44,11 +44,15 @@ class AgentMemory:
         self._observations.append(obs)
         if len(self._observations) > self.max_history:
             self._observations.pop(0)
-        # 缓存: 工具名 → 结果
+        # 缓存: 工具名 → 结果。检查报告 1.9 修复：仅缓存成功结果，
+        # 失败步骤的 error dict 不得作为后续工具的依赖注入。
         if "step" in obs:
-            self._tool_results[obs["step"]] = obs.get("result")
+            result = obs.get("result")
+            if not (isinstance(result, dict) and "error" in result):
+                self._tool_results[obs["step"]] = result
 
-    def get_observation(self, step_name: str) -> Optional[Dict]:
+    def get_observation(self, step_name: str) -> Optional[Any]:
+        """返回最近一次该工具的观测结果（可能是任意类型，非 dict）。"""
         for obs in reversed(self._observations):
             if obs.get("step") == step_name:
                 return obs.get("result")
@@ -65,16 +69,23 @@ class AgentMemory:
         context = {"patient_info": self._context.get("patient_info", {})}
 
         # ECG 信号（大多数工具都需要）
+        # 第三轮审查 AGENT-LLM-Y3：移除 plot_waveform（从未注册的死分支）
         if tool_name in ("extract_r_peaks", "classify_arrhythmia",
-                         "detect_anomaly", "measure_qt_interval", "plot_waveform"):
+                         "detect_anomaly", "measure_qt_interval"):
             context["ecg_signal"] = self._context.get("ecg_signal")
 
         # 依赖 R 峰结果的工具 → 自动注入前一步的R峰数据
         if tool_name in ("compute_hrv", "measure_qt_interval"):
             r_result = self._tool_results.get("extract_r_peaks")
-            if r_result:
+            # 检查报告 1.9 修复：结果非 dict（错误字符串/数组）时防御性跳过
+            if isinstance(r_result, dict):
                 context["r_peaks"] = r_result.get("r_peaks")
                 context["rr_intervals"] = r_result.get("rr_intervals")
+
+        # 第三轮审查 AGENT-LLM-O6：患者性别注入 QT 测量
+        # （旧版 sex 从未流入，QT 解读的性别特异性阈值整体失效）
+        if tool_name == "measure_qt_interval":
+            context["sex"] = (self._context.get("patient_info") or {}).get("sex", "Unknown")
 
         return context
 

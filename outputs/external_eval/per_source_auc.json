@@ -1,0 +1,72 @@
+{
+ "cpsc_2018": {
+  "n": 516,
+  "n_active_classes": 6,
+  "macro_auc": 0.973,
+  "ci": [
+   0.9629,
+   0.9819
+  ],
+  "note": null
+ },
+ "cpsc_2018_extra": {
+  "n": 131,
+  "n_active_classes": 17,
+  "macro_auc": 0.7908,
+  "ci": [
+   0.7531,
+   0.8795
+  ],
+  "note": null
+ },
+ "georgia": {
+  "n": 946,
+  "n_active_classes": 23,
+  "macro_auc": 0.9081,
+  "ci": [
+   0.8989,
+   0.9364
+  ],
+  "note": null
+ },
+ "ptb": {
+  "n": 7,
+  "n_active_classes": 2,
+  "macro_auc": 1.0,
+  "ci": [
+   1.0,
+   1.0
+  ],
+  "note": "样本过少，仅参考"
+ },
+ "ptb-xl": {
+  "n": 2152,
+  "n_active_classes": 23,
+  "macro_auc": 0.9392,
+  "ci": [
+   0.9193,
+   0.9535
+  ],
+  "note": null
+ },
+ "st_petersburg_incart": {
+  "n": 2,
+  "n_active_classes": 2,
+  "macro_auc": 0.5,
+  "ci": [
+   0.5,
+   0.5
+  ],
+  "note": "样本过少，仅参考"
+ },
+ "overall": {
+  "n": 3754,
+  "n_active_classes": 27,
+  "macro_auc": 0.9456,
+  "ci": [
+   0.9393,
+   0.9519
+  ],
+  "note": null
+ }
+}

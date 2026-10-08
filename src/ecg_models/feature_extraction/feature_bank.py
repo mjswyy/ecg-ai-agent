@@ -90,13 +90,20 @@ class FeatureBank:
         r_peaks = r_result["r_peaks"]
         if isinstance(r_peaks, np.ndarray):
             r_peaks = r_peaks.tolist()
-        if r_result["num_beats"] >= 2:
+        # 5D 审查（🔴-1）：QT 门控必须同时排除 insufficient——R 峰噪声守卫对
+        # 导联脱落/噪声判 insufficient=True 但仍返回伪峰，旧版只判 num_beats>=2
+        # 就拿着伪峰跑 QT，实测伪造出 qt_ms=139.0/qrs=10.0/"QT 缩短"的临床发现
+        if (not r_result.get("insufficient", False)) and r_result["num_beats"] >= 2:
             qt_result = self.qt_analyzer.analyze(
                 lead_signal, r_peaks, fs, sex
             )
             features.update(qt_result)
         else:
             features.update(QTAnalyzer._empty_result())
+        # 4D 定向复查（δ）：心率一律以 R 峰检测为单一权威——QT 成功路径以
+        # 60000/median(RR) 口径覆盖 R 峰的 60000/mean(RR_valid) 口径不一致
+        # （旧版只拦 QT 失败 None 覆盖，成功路径仍被覆盖）
+        features["heart_rate"] = r_result.get("heart_rate")
 
         # Raw data (optional)
         if include_raw:
@@ -127,16 +134,23 @@ class FeatureBank:
             keys = self._default_feature_keys()
 
         values = []
+        missing = []
         for key in keys:
             if key not in features:
-                logger.warning(f"Feature '{key}' missing from dict, using 0.0")
+                missing.append(key)
+                # 2B 遗留修复：缺失特征不再静默填 0 冒充真实测量——
+                # 返回 NaN 让下游显式感知（旧版 warning 常被忽略）
+                values.append(float("nan"))
+                continue
             val = features.get(key, 0.0)
             if isinstance(val, (int, float)):
                 values.append(float(val))
             elif isinstance(val, bool):
                 values.append(1.0 if val else 0.0)
             else:
-                values.append(0.0)
+                values.append(float("nan"))
+        if missing:
+            logger.warning(f"Feature(s) {missing} missing from dict -> NaN（下游需处理缺失）")
 
         return np.array(values, dtype=np.float32)
 

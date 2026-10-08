@@ -1,4 +1,6 @@
+# ⚠️ DEPRECATED（2026-08-24，检查报告第六步）: 旧 Top-K 评估脚本
 """Top-K Accuracy — how often the top-K predictions hit at least one ground truth label."""
+from src.utils.safe_load import safe_torch_load
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -18,7 +20,7 @@ from src.ecg_models.classifiers.arrhythmia_classifier import ArrhythmiaClassifie
 def load_model(backbone_fn, checkpoint, device, dropout=0.3):
     bb = backbone_fn(in_channels=12, dropout=dropout)
     model = ArrhythmiaClassifier(bb, num_classes=27)
-    ckpt = torch.load(checkpoint, map_location=device, weights_only=False)
+    ckpt = safe_torch_load(checkpoint, map_location=device)
     model.load_state_dict(ckpt["model_state_dict"])
     model.to(device)
     model.eval()

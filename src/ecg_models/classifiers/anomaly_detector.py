@@ -120,11 +120,18 @@ class ECGAnomalyDetector(nn.Module):
         """
         self.eval()
         scores = []
+        # 5D 审查（🟡-1）：device=None 且模型在加速器时输入张量必须搬移到模型
+        # 设备——旧版只在显式传 device 时搬移，跨设备前向崩溃；阈值却按模型
+        # 设备创建（下方），口径不一致
+        dev = device if device is not None else next(self.parameters()).device
         with torch.no_grad():
             for batch in loader:
                 x = batch[0] if isinstance(batch, (tuple, list)) else batch
-                if device: x = x.to(device)
+                x = x.to(dev)
                 scores.append(self.anomaly_score(x).cpu().numpy())
-        self.threshold = torch.tensor(float(np.percentile(np.concatenate(scores), percentile)))
+        # 检查报告 1.9 修复：阈值张量随 device 创建，加速器上跨设备比较不再崩溃
+        self.threshold = torch.tensor(
+            float(np.percentile(np.concatenate(scores), percentile)),
+            device=dev)
         self._fitted = True
         logger.info(f"异常阈值设为 {self.threshold.item():.4f} (百分位={percentile}, n={len(np.concatenate(scores))})")

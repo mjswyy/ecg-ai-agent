@@ -1,3 +1,4 @@
+# ⚠️ DEPRECATED（2026-08-24，检查报告第六步）: 旧多模态栈组件（同上）
 """Gated Fusion — Learnable modality gating.
 
 Each modality (ECG, Text, Metadata) gets a learnable gate weight.
@@ -7,6 +8,18 @@ Usage:
     fusion = GatedFusion(ecg_dim=256, text_dim=768, meta_dim=256)
     fused = fusion(ecg_features, text_features, metadata_features)
 """
+# ============================================================
+# R5 下线护栏（第二次检查报告 2C）：本模块属已废弃多模态/VQ-VAE
+# 遗留栈（含 🔴 缺陷：VQ-VAE perplexity 恒 1、编解码不对称、
+# fusion nhead 关键字崩溃、MetadataEncoder age=None 维度错配），
+# 已彻底下线、不再维护。import 即报错，防止继续使用。
+# 如需恢复请从 git 历史找回旧版文件。
+# ============================================================
+raise RuntimeError(
+    "模块已下线（R5/2C）：旧多模态/VQ-VAE 遗留栈不再维护，禁止 import。"
+    "现役多模态方案见 train_multimodal_fair.py / train_ecg_text_clip.py。")
+
+
 
 import torch
 import torch.nn as nn

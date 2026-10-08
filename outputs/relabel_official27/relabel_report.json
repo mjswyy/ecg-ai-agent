@@ -1,0 +1,192 @@
+{
+ "classes": [
+  "Pacing Rhythm",
+  "Prolonged QT Interval",
+  "Atrial Fibrillation",
+  "Atrial Flutter",
+  "Left Bundle Branch Block",
+  "Q Wave Abnormal",
+  "T Wave Abnormal",
+  "Prolonged PR Interval",
+  "Ventricular Premature Beats",
+  "Low QRS Voltages",
+  "First Degree AV Block",
+  "Premature Atrial Contraction",
+  "Left Axis Deviation",
+  "Sinus Bradycardia",
+  "Bradycardia",
+  "Sinus Rhythm",
+  "Sinus Tachycardia",
+  "Premature Ventricular Contractions",
+  "Sinus Arrhythmia",
+  "Left Anterior Fascicular Block",
+  "Right Axis Deviation",
+  "Right Bundle Branch Block",
+  "T Wave Inversion",
+  "Supraventricular Premature Beats",
+  "Nonspecific Intraventricular Conduction Disorder",
+  "Incomplete Right Bundle Branch Block",
+  "Complete Right Bundle Branch Block"
+ ],
+ "splits": {
+  "train": {
+   "old_count": 30167,
+   "new_count": 26384,
+   "dropped": 3783,
+   "dropped_dx_samples": [
+    [
+     "cpsc_2018",
+     "A0012",
+     [
+      "164884008"
+     ]
+    ],
+    [
+     "cpsc_2018",
+     "A0013",
+     [
+      "429622005"
+     ]
+    ],
+    [
+     "cpsc_2018",
+     "A0021",
+     [
+      "164931005"
+     ]
+    ],
+    [
+     "cpsc_2018",
+     "A0024",
+     [
+      "164884008"
+     ]
+    ],
+    [
+     "cpsc_2018",
+     "A0025",
+     [
+      "164884008"
+     ]
+    ]
+   ],
+   "features_rows_kept": 26384
+  },
+  "val": {
+   "old_count": 6462,
+   "new_count": 5687,
+   "dropped": 775,
+   "dropped_dx_samples": [
+    [
+     "cpsc_2018",
+     "A0014",
+     [
+      "429622005"
+     ]
+    ],
+    [
+     "cpsc_2018",
+     "A0054",
+     [
+      "164931005"
+     ]
+    ],
+    [
+     "cpsc_2018",
+     "A0106",
+     [
+      "429622005"
+     ]
+    ],
+    [
+     "cpsc_2018",
+     "A0130",
+     [
+      "164884008"
+     ]
+    ],
+    [
+     "cpsc_2018",
+     "A0146",
+     [
+      "164884008"
+     ]
+    ]
+   ],
+   "features_rows_kept": 5687
+  },
+  "test": {
+   "old_count": 6472,
+   "new_count": 5678,
+   "dropped": 794,
+   "dropped_dx_samples": [
+    [
+     "cpsc_2018",
+     "A0056",
+     [
+      "429622005"
+     ]
+    ],
+    [
+     "cpsc_2018",
+     "A0067",
+     [
+      "429622005"
+     ]
+    ],
+    [
+     "cpsc_2018",
+     "A0099",
+     [
+      "164884008"
+     ]
+    ],
+    [
+     "cpsc_2018",
+     "A0120",
+     [
+      "164931005"
+     ]
+    ],
+    [
+     "cpsc_2018",
+     "A0128",
+     [
+      "429622005"
+     ]
+    ]
+   ],
+   "features_rows_kept": 5678
+  }
+ },
+ "test_class_distribution": {
+  "Sinus Rhythm": 3160,
+  "Left Axis Deviation": 893,
+  "T Wave Abnormal": 699,
+  "Atrial Fibrillation": 532,
+  "Right Bundle Branch Block": 358,
+  "Sinus Tachycardia": 355,
+  "First Degree AV Block": 351,
+  "Sinus Bradycardia": 350,
+  "Premature Atrial Contraction": 262,
+  "Left Anterior Fascicular Block": 260,
+  "Incomplete Right Bundle Branch Block": 231,
+  "Prolonged QT Interval": 213,
+  "Sinus Arrhythmia": 181,
+  "T Wave Inversion": 178,
+  "Q Wave Abnormal": 166,
+  "Left Bundle Branch Block": 163,
+  "Nonspecific Intraventricular Conduction Disorder": 136,
+  "Complete Right Bundle Branch Block": 108,
+  "Low QRS Voltages": 79,
+  "Prolonged PR Interval": 59,
+  "Right Axis Deviation": 57,
+  "Ventricular Premature Beats": 56,
+  "Bradycardia": 46,
+  "Atrial Flutter": 42,
+  "Pacing Rhythm": 39,
+  "Supraventricular Premature Beats": 33,
+  "Premature Ventricular Contractions": 23
+ },
+ "_note": "HISTORICAL/记录级口径（2026-08-25 relabel 时点：train 26384/val 5687/test 5678）。现役权威划分为患者级 30232/3763/3754（无跨划分患者），见 outputs/patient_level/patient_split_report.json（3F-R3-02 漂移标注）。"
+}

@@ -16,6 +16,7 @@
 """
 
 import logging
+import re
 from typing import Dict, Tuple
 
 logger = logging.getLogger(__name__)
@@ -57,6 +58,15 @@ class Reflector:
 
         return True, ""
 
+    @staticmethod
+    def _num(x) -> "Optional[float]":
+        """数值类型防护：仅对真实数值做比较（检查报告 1.9 修复，
+        字符串/数组/None 视为不可比并跳过该检查）。"""
+        import numpy as np
+        if isinstance(x, (int, float, np.number)) and not isinstance(x, bool):
+            return float(x)
+        return None
+
     def _quick_check(self, step: "AgentStep", history: Dict) -> str:
         """基于生理范围的硬规则检查（零LLM调用）。
 
@@ -65,37 +75,48 @@ class Reflector:
         result = step.result if isinstance(step.result, dict) else {}
 
         # 检查1: 心率在生理范围内？
-        hr = result.get("heart_rate")
+        hr = self._num(result.get("heart_rate"))
         if hr is not None and (hr < 20 or hr > 300):
             return f"revise: 心率 {hr} bpm 超出生理范围。请检查R峰检测。"
 
         # 检查2: HRV SDNN 是否异常大？
-        sdnn = result.get("sdnn")
+        sdnn = self._num(result.get("sdnn"))
         if sdnn is not None and sdnn > 300:
             return "revise: SDNN > 300ms 极为异常。请检查RR间期。"
 
         # 检查3: QT间期在生理范围内？
-        qt = result.get("qt_ms")
+        qt = self._num(result.get("qt_ms"))
         if qt is not None and (qt < 200 or qt > 600):
             return f"revise: QT 间期 {qt}ms 超出生理范围。"
 
         # 检查4: 跨工具心率一致性（HRV工具 vs R峰检测）
-        if step.action == "compute_hrv" and hr is not None:
+        # 4A/4J 审查修复：🟠-2 HRV 成功结果键为 mean_hr 而非 heart_rate
+        # （hrv_analyzer.py:75-79），旧版恒读 heart_rate → 本检查是死代码。
+        # 改读 mean_hr（并兼容 heart_rate 键），对 None 防护。
+        hrv_hr = None
+        if step.action == "compute_hrv":
+            hrv_hr = self._num(result.get("mean_hr"))
+            if hrv_hr is None:
+                hrv_hr = hr  # 兼容旧契约 heart_rate（若存在）
+        if hrv_hr is not None:
             prev_hr = None
             for obs in history.get("observations", []):
                 r = obs.get("result", {})
-                if isinstance(r, dict) and "heart_rate" in r:
-                    prev_hr = r["heart_rate"]
-                    break
-            if prev_hr and abs(prev_hr - hr) > 20:
-                return f"revise: 心率不一致 (前次={prev_hr} vs 本次={hr} bpm)"
+                if isinstance(r, dict):
+                    prev_hr = self._num(r.get("heart_rate"))
+                    if prev_hr is not None:
+                        break
+            if prev_hr is not None and abs(prev_hr - hrv_hr) > 20:
+                return f"revise: 心率不一致 (前次={prev_hr} vs 本次={hrv_hr} bpm)"
 
         return ""
 
     @staticmethod
     def _is_critical(action: str) -> bool:
         """判断是否是需要LLM深度验证的关键步骤。"""
-        return action in ("classify_arrhythmia", "detect_anomaly", "generate_report")
+        # 4A/4J 审查修复：🟡-2 移除 generate_report（已从默认计划/注册表/mock
+        # 计划统一移除；此处残留引用会让 mock 模式对已删除步骤发起 LLM 深验）
+        return action in ("classify_arrhythmia", "detect_anomaly")
 
     def _llm_verify(self, step, history) -> Tuple[bool, str]:
         """使用LLM验证关键步骤的发现。
@@ -120,8 +141,11 @@ class Reflector:
 - "complete" 如果诊断已经足够"""
 
         response = self.llm.chat([{"role": "user", "content": prompt}])
-        if "revise" in response.lower():
+        # 2D-O6 修复：词边界匹配（旧版子串匹配 "incomplete" 命中 "complete"
+        # → 诊断不完整被误判为"已完成"提前停止）
+        rl = response.lower()
+        if re.search(r"\brevise\b", rl):
             return True, response.strip()
-        elif "complete" in response.lower():
+        elif re.search(r"\bcomplete\b", rl):
             return False, response.strip()
         return True, ""

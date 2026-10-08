@@ -24,11 +24,14 @@ Usage:
     features = backbone(x)  # x: (B, 12, 4096) → (B, 256)
 """
 
+import logging
 import math
 from typing import Optional
 
 import torch
 import torch.nn as nn
+
+logger = logging.getLogger(__name__)
 
 
 class PositionalEncoding(nn.Module):
@@ -48,8 +51,15 @@ class PositionalEncoding(nn.Module):
         self.register_buffer("pe", pe.unsqueeze(0))  # (1, max_len, d_model)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = x + self.pe[:, :x.size(1), :]
-        return self.dropout(x)
+        if x.size(1) > self.pe.size(1):
+            # 4D-ORANGE-1 修复：超长序列显式失败——旧版告警后仍执行
+            # pe[:, :x.size(1), :] 切片，pe 不足长导致与 x 广播失败
+            # （实测 RuntimeError 崩溃）；fail-loud 提示截断或增大 max_len
+            raise ValueError(
+                f"序列长度 {x.size(1)} 超过 PositionalEncoding max_len "
+                f"{self.pe.size(1)}：请截断输入或增大 max_len（3C-TRANS-1 仅告警"
+                f"的版本在超长时崩溃，现显式失败）")
+        return self.dropout(x + self.pe[:, :x.size(1), :])
 
 
 class _TransformerEncoderLayerNPU(nn.Module):
